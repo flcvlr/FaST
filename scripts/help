@@ -1,0 +1,81 @@
+Usage:
+
+FaST -1 <R1_fq.gz> -2 <R2.fq.gz> -s <path/to/genome/annotation/folder> -n <name of sample> -t <folder/with/tiles/map>  [-j n -c <file/with/tiles/offsets> -T <float> -k <integer> -m <string> -f -r ]
+
+-1	path to a gzipped fastq file containing the sequence of the barcodes
+-2	path to a gzipped fastq file containing the RNA sequencing output
+-s	either "human" or "mouse", instructs FaST to look for the appropriate annotation which is stored 
+        in the FaST/reference/ folder, and shoud have been generated with FaST-reference ( FaST-reference -h for help)
+-n	name for the sample you want to analyse. The software will create a folder 
+	with this name (and path) all output will be written in that folder.
+-t	path to a folder containing barcodes with coordinates. This is generated from the 
+	first sequencing round of seq-scope, openST or novaseq protocols using FaST-map.
+	Currently, the output of FaST-map stores tiles name as '#_xxxx' rather than 'fc_#_L#_tile_xxxx', 
+	however, if you already have a differently formatted tile map, this will work as long as it matches
+	the tile names in the file provided by option -c (see below)
+-j	max number of jobs to run in parallel during alignment (default=24).
+-k      kernel density to use in cell segmentation. 11 > odd_integer > 1 (default=7 for human, k=5 for mouse).
+-c      a path to a file containing Illumina tiles offsets. If you generated the tile map with FaST-map 
+        and are using illumina flowcell S4, this is not required as FaST has this data (thanks to the OpenST team).
+        If you use a custom generated tiles map, you should provide one with the same tile naming used 
+        in your tile map files.
+-m      Method to use to pick nuclear labels for segmentation. Either "apex" or "nuc". "apex" instructs
+        FaST to run nuclear segmentation using Apex-seq set of nuclear genes. "nuc" innstead will first run
+        a differential expression to identify genes co-expressed with introns and miR host genes and then use 
+        those genes to guide nuclear segmentation. Default:"apex".
+-r	No argument. If -r is specified, FaST will try to recover barcodes with no perfect 
+        matches in the flowcell by allowing an Hamming distance of 1 to another barcode. 
+        Makes FaST slightly slower (10% more time), and allows recovery of about 5-10% of barcodes
+-f      No argument. Forces full re-analysis of the sample, including preprocessing alignment and DGE. 
+        If aligned reads are found in the sample folder, default behaviour is to run only segmentation analysis.
+-T      Threshold to use for EM_BP function during RNA segmentation. Values between 0.4 and 0.6 are generally
+        appropriate. If omitted, spateo-release will evaluate one for each tile (but this can result into uneven 
+        segmentation efficiency across tiles).
+
+FaST will perform complete analysis of High Resolution Spatial Transcriptomic data assuming that it follows
+the OpenST format, and in particular: 
+
+1) the reads in R1_fq.gz should match the barcode files in the folder provided as an argument to -f. 
+To generate the barcode files, please read the manual, FaST will do that for you, if necessary.
+
+2) the reads in R2_fq.gz will contain a 9nt UMI at the 5'end followed by the "sense" mRNA sequence
+
+FaST will take care of read trimming, there is no need to trim R1 and R2 before running FaST.
+
+The output will be saved in the sample_name/ folder and will include:
+-   bam files for alignment to phiX, rRNA and reference genome of your species
+-   several metrics (# of barcodes, # of segmented cells, automated analysis output including 
+    segmented cells area statistics, UMAP projection of clustered cells, 
+    spatial image of cluestered cells on tissue slice)
+-   a full set of data on the RNA segmented cells including:
+	- .h5ad anndata format files to load your data into Scanpy
+	- images of the RNA segmentation output
+
+Requirements:
+FaST requires the bash shell, with support for command substitution, sed, awk, sort, uniq, cut, grep and xargs.
+These features are already present in any recent linux distribution which has a bash shell.
+
+The only required softwares are:
+bedtools v2.30.0 or later
+samtools v1.19.2 (but any version will likely work as the only samtool invoked by FaST is "samtools view")
+STAR v2.7.11a or later 
+bowtie2 v2.5.4 or later
+spateo-release v1.0.2 (for RNA segmentation only)
+scanpy v1.9.8 (optional, for automated exploratory analysis)
+
+Hardware and time considerations:
+FaST will take advantage of available threads, with the limit enforced by option -j in place for bowtie2 and STAR alignment. 
+FaST will fit in 32Gb RAM, a setting of 32 Gb RAM + 16 Gb of swap will be sufficient to run on ~10-12 square mm samples
+Setting swap partition to a SSD device will greatly help in the rare cases in which spill to swap will be necessary, 
+this may happen in the first phase of the analysis, when al barcodes are collected in a large hash. 
+A typical 10 square mm tissue slice experiment will have ~ 40M "real" barcodes + ~ 60M "wrong barcodes resulting from sequencing errors, 
+requiring ~20 Gb RAM during barcode selection. Low sequencing quality of R1 file may increase the number of wrong barcodes
+and thus result into an increased RAM requirement.
+A typical sample (10 square mm slice of tissue, ~700M R2 reads) should take ~ 2 hours with 24 threads for complete analysis.
+Moderately larger tissues slices or deeper sequencing should result in a linear increase of time requirements. 
+Significantly larger slices (i.e. > 20 square mms) may require substantially more RAM (up to 64 Gb) for the initial collection of the barcodes.
+
+bowtie2 v2.5.4 is essential as earlier versions suffer from a minor issue causing a memory leak when
+reading input from bam format, which is a rather unusual yet necessary step in the FaST pipeline. 
+I want to thank bowtie2 developers for very quickly fixing this issue when I reported it.
+

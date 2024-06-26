@@ -1,0 +1,99 @@
+#!/bin/bash
+
+show_help() {
+	cat $SCRIPT_DIR/help_reference
+	}
+while getopts "hs:d:f:g:v:" opt; do
+    case "$opt" in
+    h)  show_help
+        exit 0
+        ;;
+    s)  species=$OPTARG  
+        ;;
+    f)  fasta=$OPTARG
+        ;;
+    g)  gtf=$OPTARG
+        ;;
+    v)  gencode_version=$OPTARG
+        ;;
+    esac
+done
+
+if [ ! -d "tmp" ]; then
+    mkdir tmp
+else
+    echo -e "Error. Temporary directory ./tmp/ exists already. please check its contents and remove it before launching FaST-reference.\nExiting...\n"
+    exit
+fi
+
+if [ -z "$gencode_version" ]; then
+    gencode_version="latest_release"
+    
+fi
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+FaST_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && cd -- ../ &> /dev/null && pwd)
+show_help() {
+	cat $SCRIPT_DIR/help_reference
+	}
+	
+out_dir=$FaST_DIR/reference/$species
+
+if [ ! -d $FaST_DIR/reference/ ]; then
+    mkdir $FaST_DIR/reference/
+fi
+
+if [ ! -d "$out_dir" ]; then
+    mkdir $out_dir
+fi
+
+if [ -z "$fasta" ]; then
+    cd ./tmp
+    wget ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_$species/$gencode_version/*.primary_assembly.genome.fa.gz 
+    cd ../
+    zcat tmp/*.primary_assembly.genome.fa.gz > $out_dir/$species.genome.fa
+    fasta="$out_dir/$species.genome.fa"
+    echo -n "Using gencode $version fasta file reference" > $out_dir/$species.local_reference_files_used_for_indexes.log
+    ls tmp/*.fa >> $out_dir/$species.local_reference_files_used_for_indexes.log
+else
+    echo "using fasta file $fasta" > $out_dir/$species.local_reference_files_used_for_indexes.log
+fi
+    
+    
+if [ -z "$gtf" ]; then
+    cd ./tmp
+    if [ $species == "mouse" ]; then
+        wget ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_$species/$gencode_version/gencode.vM[0-9][0-9].basic.annotation.gtf.gz 
+        else
+        wget ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_$species/$gencode_version/gencode.v[0-9][0-9].basic.annotation.gtf.gz 
+    fi
+    cd ../
+    zcat tmp/gencode.*.annotation.gtf.gz > $out_dir/$species.annotation.gtf
+    gtf="$out_dir/$species.annotation.gtf"
+    echo -n "Using gencode $version annotation" >> $out_dir/$species.referencelog
+    ls tmp/*.gtf.gz >> $out_dir/$species.reference_files_used_for_indexes.log
+else
+    echo "using gtf file $gtf" >> $out_dir/$species.reference_files_used_for_indexes.log
+fi
+
+if [ $species == "human" ]; then
+    awk '{if ($3=="gene") print}' $gtf | perl -ne 'if ($_ =~ /"(MIR[^"]+HG)"/ ) {print $1."\n";}' > $out_dir/$species.Mirna_host_genes
+fi
+
+if [ $species == "mouse" ]; then
+    awk '{if ($3=="gene") print}' $gtf | perl -ne 'if ($_ =~ /"(Mir[^"]+hg)"/ ) {print $1."\n";}' > $out_dir/$species.Mirna_host_genes
+fi
+
+cat $out_dir/$species.Mirna_host_genes $FaST_DIR/data/APEX_seq_nuclear_$species | sort -u > $out_dir/$species.MIR_HG_and_APEX_nuc_markers
+
+rm -r ./tmp
+
+STAR --runMode genomeGenerate --runThreadN 20   --genomeDir $out_dir/$species.star --genomeFastaFiles $fasta --genomeSAsparseD 2 --sjdbGTFfile $gtf 2> $out_dir/$species.STAR.log
+cat $SCRIPT_DIR/../data/*_45S_$species.fasta $SCRIPT_DIR/../data/PhiX.fasta > $out_dir/$species.45S_PhiX.fa 
+bowtie2-build $out_dir/$species.45S_PhiX.fa $out_dir/$species.45S_PhiX 2> $out_dir/$species.bowtie2.log
+
+perl $SCRIPT_DIR/reference_preparation/exons_from_gtf_1.pl $out_dir $species $gtf
+awk '{if ($3=="gene") print}' $out_dir/$species.annotation.gtf | bedtools subtract -a - -b $out_dir/$species.exons.bed -s | perl $SCRIPT_DIR/reference_preparation/introns_from_gtf.pl $out_dir $species
+cat $out_dir/$species.introns.bed $out_dir/$species.exons.bed > $out_dir/$species.GENE_annotation_intron_exon.bed
+
+

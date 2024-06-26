@@ -1,0 +1,64 @@
+#!/bin/perl
+
+use warnings;
+use strict;
+
+my $tile;
+my %fhs;
+my $L;
+my $x;
+my $y;
+my $bc;
+my %tile_map;
+my %dup_bc;
+open (my $data_in, "-|", "pigz -cd $ARGV[0] | sed 'N;N;N;s/\\n/\\t/g' ") ;
+my $firstline=  <$data_in>;
+($L,$tile,$x,$y)=(split(":",$firstline))[3..6];
+$tile=$L."_".$tile;
+my $current_tile=$tile;
+$bc = reverse(substr((split("\t",$firstline))[1],5,25)); 
+if ($bc !~ /N/) {
+	$bc =~ tr/ACGT/TGCA/;
+	$y = (split(" ",$y))[0];
+	$tile_map{$bc} = "$x\t$y\n";
+}
+
+while (my $linein = <$data_in>) {
+	($L,$tile,$x,$y)=(split(":",$linein))[3..6];
+	$tile=$L."_".$tile;
+	if ($tile ne $current_tile) {
+		if (!exists $fhs{$current_tile}) {
+			open($fhs{$current_tile}, "|-", "pigz > $ARGV[1]/$tile.txt.gz");
+			}
+			while ((my $b,my $c)= each(%tile_map)) {
+				print {$fhs{$current_tile}} "$b\t$c";
+			}
+		close $fhs{$current_tile};
+		undef %tile_map;
+		$current_tile=$tile;
+	}
+	$bc = reverse(substr((split("\t",$linein))[1],5,25)); 
+	if ($bc !~ /N/) {
+		$bc =~ tr/ACGT/TGCA/;
+		if (exists $tile_map{$bc}) {
+			$dup_bc{$bc}++;
+			delete $tile_map{$bc};
+			}
+		else {
+			if (!exists $dup_bc{$bc}) {
+				$y = (split(" ",$y))[0];
+				$tile_map{$bc} = "$x\t$y\n";
+			}
+		}
+	}
+}
+if (!exists $fhs{$current_tile}) {
+	open($fhs{$current_tile}, "|-", "pigz > $ARGV[1]/$tile.txt.gz");
+	}
+	while ((my $b,my $c)= each(%tile_map)){
+	print {$fhs{$current_tile}} "$b\t$c";
+}
+close $fhs{$current_tile};
+
+exit;
+

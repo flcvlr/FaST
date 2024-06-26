@@ -1,0 +1,136 @@
+#!/bin/bash
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+FaST_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && cd -- ../ &> /dev/null && pwd)
+
+show_help() {
+	cat $SCRIPT_DIR/help
+	}
+	
+while getopts "hs:1:2:n:j:c:m:rt:k:fT:" opt; do
+    case "$opt" in
+    h)  show_help
+        exit 0
+        ;;
+    s)  species=$OPTARG ## currently either human or mouse
+        ;;
+    1)  R1file=$OPTARG ## R1.fastq.gz file
+        ;;   
+    2)  R2file=$OPTARG  ## R2.fastq.gz file
+        ;;
+    n)  sample=$OPTARG  ## name for sample to be analysed
+        ;;
+    j)  jobs=$(($OPTARG - 4))  ## number of threads for bowtie and star, reserve 4 threads for input/output compression/decompression
+        ;;
+    c)  coord=$OPTARG ## file containing tile coordinates
+        ;;
+    m)  apex=$OPTARG
+        ;;
+    t)  tiles=$OPTARG ## directory containing barcode map (one file per tile)
+        ;;
+    r)  HD_recover=1  ## whether to attempt recover of Barcodes not matching any barcode in map, by allowing Hamming Distance == 1 to barcodes in selected tiles 
+        ;;
+    k)  KD=$OPTARG  ## kernel density for cell segmentation (best results obtained with either 5, 7, 9). Must be an odd number.
+        ;;
+    f)  force=1 ## whether to force repeating alignment and dge steps. if not set, provided that the aligned data are already there, FaST will only repeat the segmentation step
+        ;;    
+    T)  SpateoThresh=$OPTARG
+        ;;
+    esac
+done
+
+
+
+if [ -z "$jobs" ]; then
+    jobs=20
+fi
+
+if [ -z "$KD" ]; then
+    KD=5
+    if [ "$species" == "human" ]; then
+        KD=7
+    fi
+fi
+echo "set Kernel density for RNA segmentation to $KD";
+
+if [ -z "$HD_recover" ]; then 
+    HD_recover=0
+fi
+
+if [ -z "$SpateoThresh" ]; then
+    SpateoThresh="NO"
+fi
+	
+if [ ! -d "$FaST_DIR/reference/$species" ]; then
+    echo -e "cannot find annotation data in $FaST_DIR/reference/$species directory.\nPlease run FaST-reference script with appropriate options to generate the genome annotation folder for your model organism\n"
+    exit
+fi
+
+if [ ! -d $sample ]; then
+    mkdir $sample
+fi
+
+if [ ! -d $sample/logs ]; then
+    mkdir $sample/logs
+fi
+
+
+if [ ! -d $sample/dge ]; then
+    mkdir $sample/dge
+fi
+
+cp $FaST_DIR/reference/$species/$species.GENE_annotation_intron_exon.bed $sample/GENE_annotation_intron_exon.bed
+
+if [ -f $sample/Aligned.bam ] && [ "$force" != "1" ]; then
+    echo "Found aligned reads, skipping pre-processing, alignment and DGE steps, starting cell segmentation"
+fi 
+
+if [ ! -f $sample/Aligned.bam ] || [ "$force" == "1" ]; then
+
+    perl $SCRIPT_DIR/preprocess.pl $R1file $R2file $sample $SCRIPT_DIR $tiles $HD_recover > $sample/logs/preprocessing.log
+
+    bowtie2 -k 1 -p $jobs --local -x  $FaST_DIR/reference/$species/$species.45S_PhiX -b $sample/input.bam --preserve-tags 2> $sample/logs/phix_rRNA.log | tee >(samtools view -F 4 -b -@ 2 > $sample/phix_rRNA.bam) | samtools view -f 4 -b -@ 2 -1 - > $sample/unaligned_to_phix_rRNA.bam 
+
+    STAR --runThreadN $jobs --genomeDir $FaST_DIR/reference/$species/$species.star --clip3pAdapterSeq polyA --readFilesCommand samtools view --readFilesType SAM SE --readFilesIn $sample/unaligned_to_phix_rRNA.bam --outFileNamePrefix  $sample/Aligned.$species. --outStd SAM --outTmpDir ./tmp  | samtools view -b -@ 1 -1 > $sample/Aligned.bam 
+
+    rm $project/$sample/complete_data/unaligned_to_phix_rRNA.bam
+
+    samtools view $sample/Aligned.bam | perl $SCRIPT_DIR/split_tiles.pl $sample $SCRIPT_DIR 
+
+    cut -f 1  $sample/barcodes_per_tile.txt | fgrep -f - -w $coord > $sample/tiles_info
+
+    ls $sample/dge/*DGE_input.txt.gz | xargs -i -P 5 bash -c "perl $SCRIPT_DIR/DGE.pl $sample {} $apex"
+
+    echo "retained counts:" > $sample/stats.log
+    pigz -cd $sample/dge/*DGE_input.txt.gz | cut -f 1 | paste -sd + - | bc >> $sample/stats.log
+    echo "retained UMIs:"
+    pigz -cd $sample/dge/*DGE_input.txt.gz | wc -l >> $sample/stats.log
+    
+   
+fi
+
+
+if [ ! -d $sample/images ]; then
+    mkdir $sample/images
+fi
+
+
+if [ $apex == "nuc" ]; then
+    Rscript --vanilla $SCRIPT_DIR/find_nuc_markers.R $sample
+fi
+
+ 
+if [ ! -d $sample/images/K_$KD ]; then
+    mkdir $sample/images/K_$KD
+fi
+
+cut -f 1  $sample/barcodes_per_tile.txt | xargs -i -P 1 bash -c "python $SCRIPT_DIR/segment.py $sample {} $FaST_DIR $species $apex $KD $SpateoThresh 2> $sample/logs/{}_segment_$KD.log"
+
+python $SCRIPT_DIR/join_slice.py  $sample $species $KD > $sample/images/K_$KD/log
+
+
+
+
+
+
+
