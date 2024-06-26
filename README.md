@@ -1,2 +1,2 @@
 # FaST
-Fast analysis of Spatia Transcriptomics
+Fast analysis of Spatial Transcriptomics
