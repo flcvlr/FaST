@@ -1,4 +1,4 @@
-
+import decoupler as dc
 import anndata as ad
 import sys
 import spateo as st
@@ -6,17 +6,17 @@ import spateo as st
 with open(sys.argv[1]+'/tiles_info') as tiles_file:
     line = tiles_file.readline()
     tile_data = line.strip().split(",")
-    all_adata = st.read_h5ad(sys.argv[1]+'/dge/'+tile_data[0]+'.h5ad')
+    all_adata = st.read_h5ad(sys.argv[1]+'/dge/K_'+sys.argv[3]+'/'+tile_data[0]+'.h5ad')
     for i in range (0, len(all_adata.obsm['spatial'])):
-        all_adata.obsm['spatial'][i][0] += int(int(tile_data[1])/9)
-        all_adata.obsm['spatial'][i][1] += int(int(tile_data[2])/9)
+        all_adata.obsm['spatial'][i][0] += int(tile_data[1])
+        all_adata.obsm['spatial'][i][1] += int(tile_data[2])
 
     for line in tiles_file:
         tile_data = line.strip().split(",")
-        adata = st.read_h5ad(sys.argv[1]+'/dge/'+tile_data[0]+'.h5ad')
+        adata = st.read_h5ad(sys.argv[1]+'/dge/K_'+sys.argv[3]+'/'+tile_data[0]+'.h5ad')
         for i in range (0, len(adata.obsm['spatial'])):
-            adata.obsm['spatial'][i][0] += int(int(tile_data[1])/9)
-            adata.obsm['spatial'][i][1] += int(int(tile_data[2])/9)
+            adata.obsm['spatial'][i][0] += int(tile_data[1])
+            adata.obsm['spatial'][i][1] += int(tile_data[2])
         adata_list = [all_adata,adata]
         all_adata = ad.concat(adata_list, join = 'outer')  
         
@@ -75,8 +75,9 @@ import numpy
 def overlap(gene1, gene2,adata, dataset):
     overlap_data=[numpy.matrix.sum(adata[:,gene1].X.todense() > 0), numpy.matrix.sum(adata[:,gene2].X.todense() > 0),numpy.matrix.sum((adata[:,gene1].X.todense() > 0) & (adata[:,gene2].X.todense() > 0))]
     cat=[gene1,gene2,'Double_Positive']
+    plt.rcParams['font.size'] = 18
     fig, ax=plt.subplots()
-    plt.bar(cat,overlap_data, color=['grey','blue','black'])
+    ax.bar(cat,overlap_data, color=['grey','blue','black'])
     ax.set_title('Number of cells with at least one count in '+dataset)
     perc=str(round((overlap_data[2]/(overlap_data[0]+overlap_data[1]))*100,2))
     ax.annotate('BOTH ='+perc+'%',xy=(2,5*overlap_data[2]), horizontalalignment='center',size='large')
@@ -86,11 +87,12 @@ if (sys.argv[2] == 'human'):
     overlap('CD3E','CD19',all_adata, 'FaST')
     overlap('EPCAM','ACTA2',all_adata,'FaST')
     overlap('CCR7','CCL19',all_adata,'FaST')
-
+    overlap('CD3E','KRT6A',all_adata,'FaST')
 
 sc.pp.normalize_total(all_adata, inplace=True)
 sc.pp.log1p(all_adata)
 sc.pp.highly_variable_genes(all_adata, flavor="seurat", n_top_genes=2000)
+#sc.pp.scale(adata, max_value=10)
 sc.pp.pca(all_adata)
 sc.pp.neighbors(all_adata)
 sc.tl.umap(all_adata)

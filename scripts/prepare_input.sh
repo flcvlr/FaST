@@ -1,2 +1,5 @@
 #!/usr/bin/bash
-pigz -cd -p 2 $1 | sed -n 2~4p |cut -c3-27 | paste - <(pigz -cd -p 2 $2 | sed 3~4d | sed 'N;N;s/\n/\t/g'  ) |  perl $3/trim.pl 
+
+paste <(gzip -cd $(echo $1 | tr , ' ') | sed -n '1~4p;2~4p' ) <(gzip -cd $(echo $2 | tr , ' ') | sed -n '2~4p;4~4p')  | sed 'N;s/\n/\t/' | perl $3/prepare_bam.pl 
+
+

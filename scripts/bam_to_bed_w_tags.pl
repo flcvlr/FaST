@@ -15,13 +15,18 @@ my $tile;
 my $bc;
 my $out;
 my %H_of_BC_counts;
-
-open (my $pipe ,"|-","intersectBed -a - -b $ARGV[0]/GENE_annotation_intron_exon.bed -s -wao | perl $ARGV[2]/preparse_bed.pl $ARGV[0] $ARGV[1]"); 
+my $Phix=0;
+my $rRNA=0;
+open (my $pipe ,"|-","bedtools intersect -a - -b $ARGV[0]/GENE_annotation_intron_exon.bed -s -wao | perl $ARGV[2]/preparse_bed.pl $ARGV[0] $ARGV[1]"); 
 while (my $linein =<STDIN>) {
 	if ($linein eq "END_OF_RECORDS\n") {last;}
 	@bam=split("\t",$linein);
-	if ($bam[2] !~/^chr/) {next;}	
-	@tags = ($linein =~ /CX:i:([\d]+).+?CY:i:([\d]+).+?CB:Z:([ACTG]+).+?MI:Z:([ACTG]+)/g);
+	if ($bam[2] !~/^chr/) {
+		if ($bam[2] =~  /NC_001422.1/) {$Phix ++;}
+		if ($bam[2] =~  /URS000/) {$rRNA ++;}
+		next;
+	}
+	@tags = ($linein =~ /CB:Z:([ACTG]+).+?MI:Z:([ACTG]+).+?CX:i:([\d]+).+?CY:i:([\d]+)/g);
 	if ($bam[5] =~/N/) {unshift @tags, "CY";} else {unshift @tags, "NA";}
 	$bed[0]=$bam[2];
 	$bed[1]=$bam[3]-1;
@@ -42,6 +47,10 @@ while (my $linein =<STDIN>) {
 	}
 close $pipe;
 close STDIN;
+
+if (($rRNA + $Phix) > 0) {
+	print STDERR "$ARGV[1]\tPhiX mapped reads: $Phix\trRNA mapped reads\t$rRNA\n";
+}
 exit;
 
 

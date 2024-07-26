@@ -1,5 +1,5 @@
 #!/bin/bash
-
+Invocation="$(printf %q "$BASH_SOURCE")$((($#)) && printf ' %q' "$@")"
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 FaST_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && cd -- ../ &> /dev/null && pwd)
 
@@ -7,7 +7,7 @@ show_help() {
 	cat $SCRIPT_DIR/help
 	}
 	
-while getopts "hs:1:2:n:j:c:m:rt:k:fT:" opt; do
+while getopts "hs:1:2:n:j:c:m:t:k:fT:MSR:H" opt; do
     case "$opt" in
     h)  show_help
         exit 0
@@ -28,18 +28,22 @@ while getopts "hs:1:2:n:j:c:m:rt:k:fT:" opt; do
         ;;
     t)  tiles=$OPTARG ## directory containing barcode map (one file per tile)
         ;;
-    r)  HD_recover=1  ## whether to attempt recover of Barcodes not matching any barcode in map, by allowing Hamming Distance == 1 to barcodes in selected tiles 
-        ;;
     k)  KD=$OPTARG  ## kernel density for cell segmentation (best results obtained with either 5, 7, 9). Must be an odd number.
         ;;
     f)  force=1 ## whether to force repeating alignment and dge steps. if not set, provided that the aligned data are already there, FaST will only repeat the segmentation step
         ;;    
     T)  SpateoThresh=$OPTARG
         ;;
+    M)  mask=1
+        ;;
+    S)  segment=1
+        ;;
+    R)  tile_ratio=$OPTARG   
+        ;;
+    H)  HPC=1
+        ;;    
     esac
 done
-
-
 
 if [ -z "$jobs" ]; then
     jobs=20
@@ -51,11 +55,12 @@ if [ -z "$KD" ]; then
         KD=7
     fi
 fi
-echo "set Kernel density for RNA segmentation to $KD";
 
-if [ -z "$HD_recover" ]; then 
-    HD_recover=0
+if [ -z $tile_ratio ]; then
+    tile_ratio="0.1"
 fi
+
+echo "set Kernel density for RNA segmentation to $KD";
 
 if [ -z "$SpateoThresh" ]; then
     SpateoThresh="NO"
@@ -74,41 +79,91 @@ if [ ! -d $sample/logs ]; then
     mkdir $sample/logs
 fi
 
+echo "Commandline parameters $Invocation " > $sample/logs/run.log
 
 if [ ! -d $sample/dge ]; then
     mkdir $sample/dge
 fi
 
+FaST_preprocess() {
+	echo -e "fastq1=$1\t fastq2=$2\tworking_dir=$3\tScript_dir=$4\ttiles_pat=$5\ttiles_ratio=$6\tthreads=$7\tFast_dir=$8\tspecies=$9"
+	perl $4/preprocess_b.pl $1 $2 $3 $4 $5 $6 > $3/logs/preprocessing.log
+	mkfifo $3/input.bam
+	perl $4/preprocess_c.pl $1 $2 $3 $4 sam >> $3/logs/preprocessing.log &
+	STAR --runThreadN $7 --genomeDir $8/reference/$9/$9.star --clip3pAdapterSeq polyA --readFilesType SAM SE --readFilesIn $3/input.bam --genomeLoad LoadAndKeep --outFileNamePrefix  $3/Aligned.$9. --outStd SAM --outTmpDir $3/star_tmp | samtools view -b -@ 1 -1 > $3/Aligned.bam
+	wait
+	rm $3/input.bam
+	if [ -d $3/star_tmp ]; then
+            rm -r $3/star_tmp
+        fi
+    }
+
+export -f FaST_preprocess
+
 cp $FaST_DIR/reference/$species/$species.GENE_annotation_intron_exon.bed $sample/GENE_annotation_intron_exon.bed
 
-if [ -f $sample/Aligned.bam ] && [ "$force" != "1" ]; then
+if [ -f $sample/FQ_0/Aligned.bam ] && [ "$force" != "1" ]; then
     echo "Found aligned reads, skipping pre-processing, alignment and DGE steps, starting cell segmentation"
-fi 
-
-if [ ! -f $sample/Aligned.bam ] || [ "$force" == "1" ]; then
-
-    perl $SCRIPT_DIR/preprocess.pl $R1file $R2file $sample $SCRIPT_DIR $tiles $HD_recover > $sample/logs/preprocessing.log
-
-    bowtie2 -k 1 -p $jobs --local -x  $FaST_DIR/reference/$species/$species.45S_PhiX -b $sample/input.bam --preserve-tags 2> $sample/logs/phix_rRNA.log | tee >(samtools view -F 4 -b -@ 2 > $sample/phix_rRNA.bam) | samtools view -f 4 -b -@ 2 -1 - > $sample/unaligned_to_phix_rRNA.bam 
-
-    STAR --runThreadN $jobs --genomeDir $FaST_DIR/reference/$species/$species.star --clip3pAdapterSeq polyA --readFilesCommand samtools view --readFilesType SAM SE --readFilesIn $sample/unaligned_to_phix_rRNA.bam --outFileNamePrefix  $sample/Aligned.$species. --outStd SAM --outTmpDir ./tmp  | samtools view -b -@ 1 -1 > $sample/Aligned.bam 
-
-    rm $project/$sample/complete_data/unaligned_to_phix_rRNA.bam
-
-    samtools view $sample/Aligned.bam | perl $SCRIPT_DIR/split_tiles.pl $sample $SCRIPT_DIR 
-
-    cut -f 1  $sample/barcodes_per_tile.txt | fgrep -f - -w $coord > $sample/tiles_info
-
+else
+    if [ -d $sample/FQ_0/ ]; then
+        rm $sample/FQ*/ -r
+    fi
+    if [ -f $sample/fq_list ]; then
+        rm $sample/fq_list
+    fi
+    if [ "$HPC" == "1" ]; then
+        IFS=',' read -ra FQ1 <<< $R1file
+        IFS=',' read -ra FQ2 <<< $R2file
+        len=${#FQ1[@]}
+        for (( i = 0; i < len; i++ ));
+        do
+            echo "${FQ1[i]} ${FQ2[i]} ${sample}/FQ_$i" >> $sample/fq_list
+            if [ ! -d $sample/FQ_$i ]; then
+                mkdir $sample/FQ_$i
+            else
+                rm -r $sample/FQ_$i/*/
+                rm $sample/FQ_$i/*
+            fi
+            if [ ! -d $sample/FQ_$i/logs ]; then
+                mkdir $sample/FQ_$i/logs
+            fi
+        done
+        STAR --genomeLoad LoadAndExit --genomeDir $FaST_DIR/reference/${species}/$species.star
+        j_star="10"
+        Njobs=`wc -l $sample/fq_list`
+        if [ ! -f ${sample}/FQ_0/Aligned.bam ] || [ "$force" == "1" ]; then
+            cat $sample/fq_list | xargs -i -P 4 bash -c "FaST_preprocess {} $SCRIPT_DIR $tiles $tile_ratio $j_star $FaST_DIR $species "
+        fi
+        STAR --genomeLoad Remove --genomeDir $FaST_DIR/reference/${species}/$species.star
+    else
+        mkdir $sample/FQ_0/
+        mkdir $sample/FQ_0/logs
+        perl $SCRIPT_DIR/preprocess_b.pl $R1file $R2file $sample/FQ_0/ $SCRIPT_DIR $tiles $tile_ratio > $sample/logs/preprocessing.log 
+        echo "Starting to align reads to masked genome"
+        mkfifo $sample/FQ_0/input.bam
+        perl $SCRIPT_DIR/preprocess_c.pl $R1file $R2file $sample/FQ_0 $SCRIPT_DIR $tiles >> $sample/FQ_0/logs/preprocessing.log &
+        STAR --runThreadN $jobs --genomeDir $FaST_DIR/reference/${species}/$species.star --clip3pAdapterSeq polyA --readFilesType SAM SE --readFilesIn $sample/FQ_0/input.bam --outFileNamePrefix  $sample/FQ_0/Aligned.$species. --outStd SAM --outTmpDir $sample/FQ_0/star_tmp | samtools view -b -@ 1 -1 > $sample/FQ_0/Aligned.bam 
+        wait
+        rm $sample/FQ_0/input.bam
+        if [ -d $sample/FQ_0/star_tmp ]; then
+            rm -r $sample/FQ_0/star_tmp
+        fi
+    fi
+    samtools cat $sample/FQ*/Aligned.bam | samtools view | perl $SCRIPT_DIR/split_tiles.pl $sample $SCRIPT_DIR 
+    perl $SCRIPT_DIR/S4.pl $sample
     ls $sample/dge/*DGE_input.txt.gz | xargs -i -P 5 bash -c "perl $SCRIPT_DIR/DGE.pl $sample {} $apex"
-
-    echo "retained counts:" > $sample/stats.log
-    pigz -cd $sample/dge/*DGE_input.txt.gz | cut -f 1 | paste -sd + - | bc >> $sample/stats.log
-    echo "retained UMIs:"
-    pigz -cd $sample/dge/*DGE_input.txt.gz | wc -l >> $sample/stats.log
-    
-   
 fi
 
+echo "retained counts:" > $sample/stats.log
+gzip -cd $sample/dge/*DGE_input.txt.gz | cut -f 1 | paste -sd + - | bc >> $sample/stats.log
+echo "retained UMIs:" >> $sample/stats.log
+gzip -cd $sample/dge/*DGE_input.txt.gz | wc -l >> $sample/stats.log
+
+
+if [ -z "$segment" ]; then
+    echo "Alignment and DGE: done. No segmentation requested. Exiting..."
+    exit;
+fi
 
 if [ ! -d $sample/images ]; then
     mkdir $sample/images
@@ -118,13 +173,15 @@ fi
 if [ $apex == "nuc" ]; then
     Rscript --vanilla $SCRIPT_DIR/find_nuc_markers.R $sample
 fi
-
  
 if [ ! -d $sample/images/K_$KD ]; then
     mkdir $sample/images/K_$KD
 fi
+if [ ! -d $sample/dge/K_$KD ]; then
+    mkdir $sample/dge/K_$KD
+fi
 
-cut -f 1  $sample/barcodes_per_tile.txt | xargs -i -P 1 bash -c "python $SCRIPT_DIR/segment.py $sample {} $FaST_DIR $species $apex $KD $SpateoThresh 2> $sample/logs/{}_segment_$KD.log"
+cut -f 1 -d ',' $sample/tiles_info | xargs -i -P 1 bash -c "python $SCRIPT_DIR/segment.py $sample {} $FaST_DIR $species $apex $KD $SpateoThresh 2> $sample/logs/{}_segment_$KD.log"
 
 python $SCRIPT_DIR/join_slice.py  $sample $species $KD > $sample/images/K_$KD/log
 

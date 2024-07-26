@@ -10,7 +10,7 @@ my $x;
 my $y;
 my $bc;
 my $counter;
-open (my $data_in, "-|", "pigz -cd $ARGV[0]") ;
+open (my $data_in, "-|", "gzip -cd $ARGV[0]") ;
 my $firstline=  <$data_in>;
 ($L,$tile)=(split(":",$firstline))[3,4];
 my $file=$L."_".$tile;

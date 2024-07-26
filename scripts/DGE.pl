@@ -43,7 +43,7 @@ open (my $input_DGE, "-|","gzip -cd $ARGV[1]")  || die "cannot open $ARGV[2]\n";
 
 while ($inline = <$input_DGE>) {
 	chomp $inline;
-	($num,$gene,$loc,$bc,$umi,$x,$y) = split("\t",$inline);
+	($num,$gene,$loc,$x,$y,$bc,$umi) = split("\t",$inline);
 	if ($loc eq "NU") {$nuc_score{$bc}++;$H_o_H_intronic{$bc}{$gene}++;}
 	if ($loc eq "CY") { $cyto_score{$bc} ++;}
 	if (!exists($gene_list{$gene})) {$gene_list{$gene} =$gene_in_tile;$gene_in_tile +=1} ### so each slot of %gene_list will contain a new integer
@@ -94,6 +94,8 @@ foreach $bc (keys %H_o_H) {
 			$exonic = $H_o_H{$bc}{$gene};$intronic=0;
 		}
 		($x,$y)=split(",",$H_of_counts{$bc}{'coord'});
+		$x = int($x/9);
+		$y = int($y/9);
 		print $spateo "$x\t$y\t$gene\t$H_o_H{$bc}{$gene}\t$exonic\t$intronic\n";
 	}
 	if ($H_of_counts{$bc}{'counts'} > 4) {
@@ -129,13 +131,13 @@ if ($ARGV[2] ne "apex") {
 		}
 	}
 
-	open (my $nuclear, ">", "$ARGV[0]/$ARGV[1]/complete_data/dge/$tile.nuclear");
+	open (my $nuclear, ">", "$ARGV[0]/dge/$tile.nuclear");
 	while (($k, $v)=each %tile_nuc_counts) {
 		print $nuclear "$k\t$v\n";
 	}
 	close $nuclear;
 
-	open (my $cytoplasmic, ">", "$ARGV[0]/$ARGV[1]/complete_data/dge/$tile.cytoplasmic");
+	open (my $cytoplasmic, ">", "$ARGV[0]/dge/$tile.cytoplasmic") || die;
 	while (($k, $v)=each %tile_cyto_counts) {
 		print $cytoplasmic "$k\t$v\n";
 	}
