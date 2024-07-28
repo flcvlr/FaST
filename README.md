@@ -8,11 +8,15 @@ include OpenST, seqscope and novascope.
 Requirements:
 
 bash shell environment
+
 bedtools v2.30.0 or later
-samtools v1.19.2 (but any version will likely work as the only samtool invoked by FaST is "samtools view")
+
+samtools v1.19.2
+
 STAR v2.7.11a or later 
-bowtie2 v2.5.4 or later
+
 spateo-release v1.0.2 (for RNA segmentation only)
+
 scanpy v1.9.8 or later (optional, for automated exploratory analysis)
 
 
