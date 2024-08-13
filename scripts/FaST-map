@@ -1,12 +1,12 @@
 #!/usr/bin/bash
 
 if [ "$1" == "-h" ]; then
-    echo -e "usage: FaST-map <pat/to/first/seq.fastq.gz> <target/folder>\n\n\nThe first argument should be the path to the gzipped fastq file containin the first sequencing results\n\nthe second argument is the path to a folder (FaST-map will create it if that does not exist yet) to save the barcodes per tile map.\n\n"
+    echo -e "usage: FaST-map <path/to/first/seq.fastq.gz> <target/folder>\n\n\nThe first argument should be the path to the gzipped fastq file containin the first sequencing results\n\nthe second argument is the path to a folder (FaST-map will create it if that does not exist yet) to save the barcodes per tile map.\n\n"
     exit
 fi
 
-if [ ! -d $1 ]; then
-    mkdir $1
+if [ ! -d $2 ]; then
+    mkdir $2
 fi
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
