@@ -95,6 +95,6 @@ cat $out_dir/$species.introns.bed $out_dir/$species.exons.bed > $out_dir/$specie
 awk '{if ($3=="gene") print}' $gtf | bedtools slop -i - -b 100 -g $out_dir/$species.chr_len | bedtools complement -i - -g $out_dir/$species.chr_len | bedtools maskfasta -fi $fasta -bed - -fo $out_dir/masked_genome.fa 
 cat $SCRIPT_DIR/../data/*_45S_$species.fasta $SCRIPT_DIR/../data/PhiX.fasta  $out_dir/masked_genome.fa > $out_dir/$species.masked_genome_w_45s_phix.fa 
 STAR --runMode genomeGenerate --runThreadN 20   --genomeDir $out_dir/$species.star --genomeFastaFiles $out_dir/$species.masked_genome_w_45s_phix.fa  --genomeSAsparseD $sparse --sjdbGTFfile $gtf 2> $out_dir/$species.STAR.log
-fi
+
 exit
 
