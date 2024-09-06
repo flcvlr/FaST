@@ -19,10 +19,9 @@ FaST currently requires:
 * spateo-release v1.0.2 (for RNA segmentation only)
 * scanpy v1.10.1 or later (optional, for automated exploratory analysis)
 
-It is advisable to take advantage of the `requirements.yaml`_ file in the data folder to create a dedicated
+It is advisable to take advantage of the `requirements.yaml <https://github.com/flcvlr/FaST/blob/main/data/FaST_env.yml>`_ file in the data folder to create a dedicated
 environment. Upon successful creation (and activation) of the environment, spateo-release should be installed with pip
 
-.. _`requirements.yaml` https://github.com/flcvlr/FaST/blob/main/data/FaST_env.yml
 
 .. code-block:: bash
     
