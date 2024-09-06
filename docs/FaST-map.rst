@@ -47,16 +47,16 @@ Notes on fastq.gz input files
 ================
     
 * Please bear in mind that order matters in this case as the reads are expected to occur in order by tile as per 
-Illumina default policy. If you rejoin fastq.gz chunks in the wrong order data of the tiles across two files will
-be corrupted.
+  Illumina default policy. If you rejoin fastq.gz chunks in the wrong order data of the tiles across two files will
+  be corrupted.
 * If you run only the first chunk of a fastq.gz file you have trunkated (because you know that the tiles you are 
-interested in are in that chunk and the file was too large for your repository or transfer tool, or just to save disk 
-space) FaST-map will throw an error upon reaching the trunkated end of the gzipped file. In that case a few corrupted 
-tiles may be generated. Those will correspond to files in the output directory with size = 0. Remove all (both .txt.gz 
-and .idx) output for all tiles in which either of the files has size = 0 bytes or later FaST will fail.
+  interested in are in that chunk and the file was too large for your repository or transfer tool, or just to save disk 
+  space) FaST-map will throw an error upon reaching the trunkated end of the gzipped file. In that case a few corrupted 
+  tiles may be generated. Those will correspond to files in the output directory with size = 0. Remove all (both .txt.gz 
+  and .idx) output for all tiles in which either of the files has size = 0 bytes or later FaST will fail.
 * Please note that if a large fastq.gz has been split into multiple chunks arbitrarily (i.e. without decompressing 
-first, then splitting in between two fastq records and finally recompressing the resulting chunks) it should be 
-appropriately rejoined before processing. If you are unsure about that, ask those who split the file how to 
-restore it.
+  first, then splitting in between two fastq records and finally recompressing the resulting chunks) it should be 
+  appropriately rejoined before processing. If you are unsure about that, ask those who split the file how to 
+  restore it.
 
 
