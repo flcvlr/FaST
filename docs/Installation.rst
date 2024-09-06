@@ -12,6 +12,7 @@ Software requirements
 
 FaST has been developed to run in a bash shell on Linux OS.
 FaST currently requires:
+
 * bedtools v2.30.0 or later
 * samtools v1.19.2 (but any version will likely work as the only samtool invoked by FaST is "samtools view")
 * STAR v2.7.11a or later 
