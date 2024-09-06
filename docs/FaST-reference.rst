@@ -21,6 +21,9 @@ Command syntax:
 
    $ FaST-reference -s <species>  [ -v gencode_version | -f genome.fa -g annotation.gtf ] 
 
+
+
+
 ===========   ===================
 Option         Description
 ===========   ===================
