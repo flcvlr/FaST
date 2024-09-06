@@ -23,13 +23,13 @@ Command syntax:
 
 
 Options:
--s	Mandatory. Currently either 'human' or 'mouse'.
--v	Optional, gencode annotation version (i.e. 'v46' for human version 46, 'vM25' for mouse version 25).
+\-s	Mandatory. Currently either 'human' or 'mouse'.
+\-v	Optional, gencode annotation version (i.e. 'v46' for human version 46, 'vM25' for mouse version 25).
 	If omitted and no fasta or gtf are selected, the latest Gencode release for the selected species will be 
 	downloaded.
--f	Optional. Path to a fasta file corresponding to the species of interest. 
+\-f	Optional. Path to a fasta file corresponding to the species of interest. 
 	If omitted, the latest Gencode data for the selected species will be downloaded.
--g	Optional, Path to gtf format file containing transcriptome annotation for the selected species.
+\-g	Optional, Path to gtf format file containing transcriptome annotation for the selected species.
 	If omitted, the latest Gencode data for the selected species will be downloaded.
 	
 ======================
