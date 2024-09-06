@@ -46,7 +46,7 @@ Notes
 * If you do not have a local fasta and gtf file, internet connection will be required to download gencode data.
 * If specifying a local fasta and/or gtf file please make sure that they correspond to the same genome assembly.
 * If specifying only a fasta (or gtf) file, please make sure that they match the same genome assembly of
-the Gencode gtf (or fasta) that FaST-reference will download (the latest available if -v is omitted)
+  the Gencode gtf (or fasta) that FaST-reference will download (the latest available if -v is omitted)
 
 
 
