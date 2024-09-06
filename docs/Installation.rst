@@ -17,11 +17,11 @@ FaST currently requires:
 * samtools v1.19.2 (but any version will likely work as the only samtool invoked by FaST is "samtools view")
 * STAR v2.7.11a or later 
 * spateo-release v1.0.2 (for RNA segmentation only)
-* scanpy v1.10.1 or later (optional, for automated exploratory analysis)
+* scanpy v1.10.1 or later 
 
-It is advisable to take advantage of the `requirements.yaml <https://github.com/flcvlr/FaST/blob/main/data/FaST_env.yml>`_ file in the data folder to create a dedicated
-environment. Upon successful creation (and activation) of the environment, spateo-release should be installed with pip
-
+It is advisable to take advantage of the `FaST_env.yml <https://github.com/flcvlr/FaST/blob/main/data/FaST_env.yml>`_ 
+file in the data folder to create a dedicated environment. Upon successful creation (and activation) of the environment, 
+spateo-release should be installed with pip
 
 .. code-block:: bash
     
