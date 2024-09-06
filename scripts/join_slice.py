@@ -1,4 +1,4 @@
-import decoupler as dc
+
 import anndata as ad
 import sys
 import spateo as st
