@@ -13,6 +13,7 @@ expected to process (and therefore generate outpu files) several tiles per minut
 Command syntax:
 
 .. code-block:: bash
+
    $ FaST-map <path/to/first/seq.fastq.gz> </target/folder>
 
 The first argument should be the path to the gzipped fastq file containin the first sequencing results. 
@@ -26,6 +27,7 @@ or, in case you do not care of saving on your filesystem the whole file (which w
 data)
 
 .. code-block:: bash
+
    $ FaST-map <(cat file1.fastq.gz file2.fastq.gz file3.fastq.gz) </target/folder>
    
 should also work.
