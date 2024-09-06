@@ -20,7 +20,9 @@ Briefly, all these protocols rely on two sequencing steps:
    HDMI barcodes to capture RNA from a tissue slice which is lying on a small area of the flowcell, 
    a new library is prepared and sequenced (2nd sequencing).
   
-*FaST-map* will process the (usually huge) fastq.gz files obtained in the 1st sequencing.
-*FaST-reference* should be fed with a (non-gzipped) genome fasta file and a corresponding (non-gzipped) gtf file.
-*FaST* will instead process the paired fastq.gz files obtained in the 2nd sequencing.
+**FaST-map** will process the (usually huge) fastq.gz files obtained in the 1st sequencing.
+
+**FaST-reference** should be fed with a (non-gzipped) genome fasta file and a corresponding (non-gzipped) gtf file.
+
+**FaST** will instead process the paired fastq.gz files obtained in the 2nd sequencing.
 
