@@ -11,6 +11,7 @@ Those protocols include:
 * NovaScope
 
 Briefly, all these protocols rely on two sequencing steps:
+
 #. HDMI barcode oligos are spot on the Illumina flowcell and sequenced (1st sequencing)
    the output of the first sequencing is tipycally a huge (hundreds of Gb) set of fastq.gz files,
    containing all the sequences of the HDMI barcodes in the Illumina flowcell
