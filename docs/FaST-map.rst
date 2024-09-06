@@ -8,7 +8,7 @@ Upon completion of the run the output folder will contain a few thousand files n
 (e.g. 2_2456), two files for each tile, (2_2456.txt.gz and 2_2456.idx). While FaST-map is running you can monitor 
 its work by simply opening a new terminal window and listing the contents of the output directory. FaST-map is 
 expected to process (and therefore generate outpu files) several tiles per minute. Generation of .idx files will
- start with a small lag, approximately after the first 20 tiles have been processed.
+start with a small lag, approximately after the first 20 tiles have been processed.
  
 Command syntax:
 
@@ -33,8 +33,8 @@ data)
 should also work.
     
 The second argument is the path to a folder (FaST-map will create it if that does not exist yet) to save the barcodes
- per tile map. You will have to provide this path to FaST as an argument to the ``-t`` option in the analysis of the 
- 2nd sequencing.
+per tile map. You will have to provide this path to FaST as an argument to the ``-t`` option in the analysis of the 
+2nd sequencing.
 
 ================
 Notes on fastq.gz input files
