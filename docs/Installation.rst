@@ -20,12 +20,19 @@ FaST currently requires:
 * scanpy v1.10.1 or later 
 
 It is advisable to take advantage of the `FaST_env.yml <https://github.com/flcvlr/FaST/blob/main/data/FaST_env.yml>`_ 
-file in the data folder to create a dedicated environment. Upon successful creation (and activation) of the environment, 
-spateo-release should be installed with pip
+file in the data folder to create a dedicated environment. This environment file assumes a global installation of:
+* samtools
+* bedtools
+* STAR
+
+Upon successful creation (and activation) of the environment, spateo-release should be installed with pip
 
 .. code-block:: bash
     
     $ pip install spateo-release==1.0.2
+
+If samtools, bedtools and STAR are not globally available on your system, those can be added to the environment 
+through conda.
 
 =======================================
 Installing FaST
@@ -46,5 +53,5 @@ instead of
     $ /path/to/FaST/scripts/FaST -h
 
 
-
+If you choose to run FaST in the dedicated environment, remember activating the environment before running FaST.
 
