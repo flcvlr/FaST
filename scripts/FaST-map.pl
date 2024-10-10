@@ -40,7 +40,7 @@ while (my $linein = <$data_in>) {
 }
 
 close $out;
-print "$current_tile\n";
+print "$file\n";
 print STDERR "processed $counter tiles\n";
 exit;
 
