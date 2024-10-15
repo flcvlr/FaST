@@ -1,4 +1,4 @@
-name: FaST_env_2
+name: FaST_env
 channels:
   - conda-forge
   - bioconda
@@ -16,6 +16,6 @@ dependencies:
       - matplotlib==3.7.1
       - louvain==0.8.0
       - pyvista==0.42
-      
+      - leidenalg==0.10.2
 
 
