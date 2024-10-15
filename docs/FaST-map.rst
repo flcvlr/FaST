@@ -7,8 +7,8 @@ HDMI barcode collection files and the corresponding indexes.
 Upon completion of the run the output folder will contain a few thousand files named after Illumina flowcell tiles
 (e.g. 2_2456), two files for each tile, (2_2456.txt.gz and 2_2456.idx). While FaST-map is running you can monitor 
 its work by simply opening a new terminal window and listing the contents of the output directory. FaST-map is 
-expected to process (and therefore generate outpu files) several tiles per minute. Generation of .idx files will
-start with a small lag, approximately after the first 20 tiles have been processed.
+expected to process (and therefore generate corresponding output files) several tiles per minute. Generation of .idx 
+files will start with a small lag, approximately after the first 20 tiles have been processed.
 
 ======================
 Usage
