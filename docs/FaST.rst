@@ -98,7 +98,7 @@ To ensure appropriate segmentation by spateo-release v 1.0.2 the following versi
 
 * pyvista==0.42
       
-All dependencies may be installed with conda, please refer to the FaST_env.yml file in the "data" folder to create a reproducible environment for FaST.
+All dependencies may be installed with conda, please refer to the `FaST_env.yml <https://github.com/flcvlr/FaST/blob/main/data/FaST_env.yml>`_  file in the "data" folder to create a reproducible environment for FaST.
 
 Hardware and time considerations:
 FaST will take advantage of available threads, with the limit enforced by option -j in place for bowtie2 and STAR alignment. 
