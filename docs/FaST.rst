@@ -77,16 +77,25 @@ FaST requires the bash shell, with support for command substitution, sed, awk, s
 These features are already present in any recent linux distribution which has a bash shell.
 
 The only required softwares are:
+
 * bedtools v2.30.0 or later
+
 * samtools v1.19.2 (but any version will likely work as the only samtool invoked by FaST is "samtools view")
+
 * STAR v2.7.11a or later 
+
 * spateo-release v1.0.2 (for RNA segmentation only)
+
 * scanpy v1.10.1 or later (optional, for automated exploratory analysis)
 
 To ensure appropriate segmentation by spateo-release v 1.0.2 the following versions of spateo-release dependencies should be installed
+
 * scipy==1.12.0
+
 * matplotlib==3.7.1
+
 * louvain==0.8.0
+
 * pyvista==0.42
       
 All dependencies may be installed with conda, please refer to the FaST_env.yml file in the "data" folder to create a reproducible environment for FaST.
