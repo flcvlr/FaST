@@ -66,12 +66,9 @@ st.pl.contours(adata, 'X_bins', scale=0.15)
 st.cs.score_and_mask_pixels(adata, 'X', threshold=EM_thresh, k=EM_kernel, method='EM+BP', certain_layer='unspliced_labels_bis',em_kwargs={'precision': 1e-06, 'max_iter':150000 , 'seed' : seed1}) 
 st.cs.label_connected_components(adata, 'X', seed_layer='unspliced_labels_bis',min_area=4000, area_threshold=8000, max_area=20000)
 
-st.cs.score_and_mask_pixels(adata, 'X', threshold=EM_thresh, k=EM_kernel, method='EM+BP', certain_layer='X_labels',scores_layer = 'X_scores_bis', mask_layer='X_mask_bis',em_kwargs={'precision': 1e-06, 'max_iter':150000 , 'seed' : seed2}) 
-st.cs.label_connected_components(adata, 'X_mask_bis', seed_layer='X_labels',min_area=4000, area_threshold=8000, max_area=20000, out_layer = 'X_labels_bis')
-
 if sys.argv[4] == 'human':
     st.segmentation.utils.filter_cell_labels_by_area(adata,'X',200)
-st.pl.imshow(adata, 'X_labels_bis', labels=True, save_show_or_return='save', save_kwargs={'path':  sys.argv[1]+'/images/K_'+sys.argv[6]+'/', 'prefix': sys.argv[2]+'_final_masks', 'dpi': None, 'ext': 'png', 'transparent': False, 'close': True, 'verbose': True})
+st.pl.imshow(adata, 'X_labels', labels=True, save_show_or_return='save', save_kwargs={'path':  sys.argv[1]+'/images/K_'+sys.argv[6]+'/', 'prefix': sys.argv[2]+'_final_masks', 'dpi': None, 'ext': 'png', 'transparent': False, 'close': True, 'verbose': True})
 
 cell_adata = st.io.read_bgi(sys.argv[1]+'/dge/'+sys.argv[2]+'.spateo.txt', segmentation_adata=adata, labels_layer='X_labels')
 cell_adata=cell_adata[cell_adata.obs['area']> 50]
