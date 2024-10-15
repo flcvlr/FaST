@@ -20,21 +20,17 @@ while getopts "hs:1:2:n:j:c:m:t:k:fT:MSR:H" opt; do
         ;;
     n)  sample=$OPTARG  ## name for sample to be analysed
         ;;
-    j)  jobs=$(($OPTARG - 4))  ## number of threads for bowtie and star, reserve 4 threads for input/output compression/decompression
-        ;;
-    c)  coord=$OPTARG ## file containing tile coordinates
+    j)  jobs=$(($OPTARG - 4))  ## number of threads for STAR, reserve 4 threads for input/output compression/decompression
         ;;
     m)  apex=$OPTARG
         ;;
-    t)  tiles=$OPTARG ## directory containing barcode map (one file per tile)
+    t)  tiles=$OPTARG ## directory containing barcode map (one file per tile + one .idx file per tile)
         ;;
     k)  KD=$OPTARG  ## kernel density for cell segmentation (best results obtained with either 5, 7, 9). Must be an odd number.
         ;;
     f)  force=1 ## whether to force repeating alignment and dge steps. if not set, provided that the aligned data are already there, FaST will only repeat the segmentation step
         ;;    
     T)  SpateoThresh=$OPTARG
-        ;;
-    M)  mask=1
         ;;
     S)  segment=1
         ;;
@@ -79,8 +75,6 @@ if [ ! -d $sample/logs ]; then
     mkdir $sample/logs
 fi
 
-echo "Commandline parameters $Invocation " > $sample/logs/run.log
-
 if [ ! -d $sample/dge ]; then
     mkdir $sample/dge
 fi
@@ -105,6 +99,9 @@ cp $FaST_DIR/reference/$species/$species.GENE_annotation_intron_exon.bed $sample
 if [ -f $sample/FQ_0/Aligned.bam ] && [ "$force" != "1" ]; then
     echo "Found aligned reads, skipping pre-processing, alignment and DGE steps, starting cell segmentation"
 else
+    echo "Commandline parameters: $Invocation " > $sample/logs/run.log
+    cat $FaST_DIR/reference/$species/$species.*files_used_for_indexes.log    >> $sample/logs/run.log 
+
     if [ -d $sample/FQ_0/ ]; then
         rm $sample/FQ*/ -r
     fi
@@ -180,8 +177,8 @@ fi
 if [ ! -d $sample/dge/K_$KD ]; then
     mkdir $sample/dge/K_$KD
 fi
-
-cut -f 1 -d ',' $sample/tiles_info | xargs -i -P 1 bash -c "python $SCRIPT_DIR/segment.py $sample {} $FaST_DIR $species $apex $KD $SpateoThresh 2> $sample/logs/{}_segment_$KD.log"
+echo "segmentation parameters: -K $KD -T $SpateoThresh" >> $sample/logs/run.log 
+cut -f 1 -d ',' $sample/tiles_info | xargs -i -P 1 bash -c "python $SCRIPT_DIR/segment_2.py $sample {} $FaST_DIR $species $apex $KD $SpateoThresh 78 2> $sample/logs/{}_segment_$KD.log"
 
 python $SCRIPT_DIR/join_slice.py  $sample $species $KD > $sample/images/K_$KD/log
 

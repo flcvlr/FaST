@@ -7,7 +7,8 @@ import matplotlib.pyplot as plt
 import scanpy as sc
 import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
-
+seed1 = int(sys.argv[8])
+seed2 = seed1 + 10
 EM_kernel= int(sys.argv[6])
 
 if sys.argv[5] == "apex":
@@ -29,8 +30,13 @@ adata = st.io.read_bgi_agg(sys.argv[1]+'/dge/'+sys.argv[2]+'.spateo.txt',gene_ag
 st.cs.segment_densities(adata, 'nuclear', 40, k=5, dk=3, distance_threshold=3, background=False)
 st.pl.contours(adata, 'nuclear_bins', scale=0.15)
 st.pl.imshow(adata, 'nuclear_bins', labels=True, save_show_or_return='save', save_kwargs={'path':  sys.argv[1]+'/images/K_'+sys.argv[6]+'/', 'prefix': sys.argv[2]+'_contours', 'dpi': None, 'ext': 'png', 'transparent': False, 'close': True, 'verbose': True})
-st.cs.score_and_mask_pixels(adata, 'nuclear',  threshold=EM_thresh, k=EM_kernel, method='EM+BP',em_kwargs={'precision': 5e-07 , 'max_iter':150000 , 'seed' : 25})
+
+st.cs.score_and_mask_pixels(adata, 'nuclear',  threshold=EM_thresh, k=EM_kernel, method='EM+BP',em_kwargs={'precision': 1e-06 , 'max_iter':150000 , 'seed' : seed1})
 st.cs.label_connected_components(adata,'nuclear',area_threshold=2000, max_area=4000, min_area=300)
+
+st.cs.score_and_mask_pixels(adata, 'nuclear',  threshold=EM_thresh, k=EM_kernel, method='EM+BP',certain_layer='nuclear_labels', scores_layer = 'nuclear_scores_bis', mask_layer='nuclear_mask_bis', em_kwargs={'precision': 1e-06 , 'max_iter':150000 , 'seed' : seed2})
+st.cs.label_connected_components(adata,'nuclear_mask_bis',area_threshold=2000, max_area=4000, min_area=300, seed_layer='nuclear_labels', out_layer='nuclear_labels_bis')
+
 if sys.argv[4] == 'human':
     st.segmentation.utils.filter_cell_labels_by_area(adata,'nuclear',150)
 st.pl.imshow(adata, 'nuclear_labels', labels=True, save_show_or_return='save', save_kwargs={'path':  sys.argv[1]+'/images/K_'+sys.argv[6]+'/', 'prefix': sys.argv[2]+'_nuc_masks', 'dpi': None, 'ext': 'png', 'transparent': False, 'close': True, 'verbose': True})
@@ -40,22 +46,32 @@ st.pl.imshow(adata, 'nuclear_labels', labels=True, save_show_or_return='save', s
 st.cs.segment_densities(adata, 'unspliced', 40, k=5, dk=3, distance_threshold=3, background=False)
 st.pl.contours(adata, 'unspliced_bins', scale=0.15)
 st.pl.imshow(adata, 'unspliced_bins', labels=True, save_show_or_return='save', save_kwargs={'path':  sys.argv[1]+'/images/K_'+sys.argv[6]+'/', 'prefix': sys.argv[2]+'_unspliced_contours', 'dpi': None, 'ext': 'png', 'transparent': False, 'close': True, 'verbose': True})
-st.cs.score_and_mask_pixels( adata, 'unspliced',  threshold=EM_thresh, k=EM_kernel, method='EM+BP', certain_layer='nuclear_labels',em_kwargs={'precision': 5e-07, 'max_iter':150000 , 'seed' : 25})
-st.cs.label_connected_components(adata, 'unspliced',area_threshold=2000, min_area=300, max_area=4000, seed_layer='nuclear_labels')
+
+st.cs.score_and_mask_pixels( adata, 'unspliced',  threshold=EM_thresh, k=EM_kernel, method='EM+BP', certain_layer='nuclear_labels_bis',em_kwargs={'precision': 1e-06, 'max_iter':150000 , 'seed' : seed1})
+st.cs.label_connected_components(adata, 'unspliced',area_threshold=2000, min_area=300, max_area=4000, seed_layer='nuclear_labels_bis')
+
+st.cs.score_and_mask_pixels( adata, 'unspliced',  threshold=EM_thresh, k=EM_kernel, method='EM+BP', certain_layer='unspliced_labels', scores_layer = 'unspliced_scores_bis', mask_layer='unspliced_mask_bis',em_kwargs={'precision': 1e-06, 'max_iter':150000 , 'seed' : seed2})
+st.cs.label_connected_components(adata, 'unspliced_mask_bis',area_threshold=2000, min_area=300, max_area=4000, seed_layer='unspliced_labels', out_layer='unspliced_labels_bis')
+
+
 if sys.argv[4] == 'human':
     st.segmentation.utils.filter_cell_labels_by_area(adata,'unspliced',150)
-st.pl.imshow(adata, 'unspliced_labels', labels=True, save_show_or_return='save', save_kwargs={'path':  sys.argv[1]+'/images/K_'+sys.argv[6]+'/', 'prefix': sys.argv[2]+'_unspliced_masks', 'dpi': None, 'ext': 'png', 'transparent': False, 'close': True, 'verbose': True})
+st.pl.imshow(adata, 'unspliced_labels_bis', labels=True, save_show_or_return='save', save_kwargs={'path':  sys.argv[1]+'/images/K_'+sys.argv[6]+'/', 'prefix': sys.argv[2]+'_unspliced_masks', 'dpi': None, 'ext': 'png', 'transparent': False, 'close': True, 'verbose': True})
 
 ### cytoplasm
 
 
 st.cs.segment_densities(adata, 'X', 40, k=5, distance_threshold=3, dk=3, background=False)
 st.pl.contours(adata, 'X_bins', scale=0.15)
-st.cs.score_and_mask_pixels(adata, 'X', threshold=EM_thresh, k=EM_kernel, method='EM+BP', certain_layer='unspliced_labels',em_kwargs={'precision': 5e-07, 'max_iter':150000 , 'seed' : 25}) 
-st.cs.label_connected_components(adata, 'X', seed_layer='unspliced_labels',min_area=4000, area_threshold=8000, max_area=20000)
+st.cs.score_and_mask_pixels(adata, 'X', threshold=EM_thresh, k=EM_kernel, method='EM+BP', certain_layer='unspliced_labels_bis',em_kwargs={'precision': 1e-06, 'max_iter':150000 , 'seed' : seed1}) 
+st.cs.label_connected_components(adata, 'X', seed_layer='unspliced_labels_bis',min_area=4000, area_threshold=8000, max_area=20000)
+
+st.cs.score_and_mask_pixels(adata, 'X', threshold=EM_thresh, k=EM_kernel, method='EM+BP', certain_layer='X_labels',scores_layer = 'X_scores_bis', mask_layer='X_mask_bis',em_kwargs={'precision': 1e-06, 'max_iter':150000 , 'seed' : seed2}) 
+st.cs.label_connected_components(adata, 'X_mask_bis', seed_layer='X_labels',min_area=4000, area_threshold=8000, max_area=20000, out_layer = 'X_labels_bis')
+
 if sys.argv[4] == 'human':
     st.segmentation.utils.filter_cell_labels_by_area(adata,'X',200)
-st.pl.imshow(adata, 'X_labels', labels=True, save_show_or_return='save', save_kwargs={'path':  sys.argv[1]+'/images/K_'+sys.argv[6]+'/', 'prefix': sys.argv[2]+'_final_masks', 'dpi': None, 'ext': 'png', 'transparent': False, 'close': True, 'verbose': True})
+st.pl.imshow(adata, 'X_labels_bis', labels=True, save_show_or_return='save', save_kwargs={'path':  sys.argv[1]+'/images/K_'+sys.argv[6]+'/', 'prefix': sys.argv[2]+'_final_masks', 'dpi': None, 'ext': 'png', 'transparent': False, 'close': True, 'verbose': True})
 
 cell_adata = st.io.read_bgi(sys.argv[1]+'/dge/'+sys.argv[2]+'.spateo.txt', segmentation_adata=adata, labels_layer='X_labels')
 cell_adata=cell_adata[cell_adata.obs['area']> 50]
