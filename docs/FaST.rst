@@ -57,11 +57,9 @@ Option         Description
 Notes
 ======================
 
-* FaST will perform complete analysis of High Resolution Spatial Transcriptomic data assuming that it follows
-the OpenST or seqscope format, and in particular: 
+* FaST will perform complete analysis of High Resolution Spatial Transcriptomic data assuming that it follows the OpenST or seqscope format, and in particular: 
 
-1) the reads in R1_fq.gz file(s) should match the barcode files in the folder provided as an argument to -t. 
-To obtain details on how to generate the barcode files, please run FaST-map -h 
+1) the reads in R1_fq.gz file(s) should match the barcode files in the folder provided as an argument to -t. To obtain details on how to generate the barcode files, please run FaST-map -h 
 
 2) the reads in R2_fq.gz will contain a 9nt UMI at the 5'end followed by the "sense" mRNA sequence
 
@@ -69,9 +67,7 @@ FaST will take care of read trimming, there is no need to trim R1 and R2 before 
 
 The output will be saved in the sample_name/ folder and will include:
 -   bam files for alignment to reference genome of your species
--   several metrics (# of barcodes, # of segmented cells, automated analysis output including 
-    segmented cells area statistics, UMAP projection of clustered cells, 
-    spatial image of cluestered cells on tissue slice)
+-   several metrics (# of barcodes, # of segmented cells, automated analysis output including segmented cells area statistics, UMAP projection of clustered cells, spatial image of cluestered cells on tissue slice)
 -   a full set of data on the RNA segmented cells including:
 	- .h5ad anndata format files to load your data into Scanpy
 	- images of the RNA segmentation output
