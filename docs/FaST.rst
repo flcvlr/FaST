@@ -57,7 +57,7 @@ Option         Description
 Notes
 ======================
 
-FaST will perform complete analysis of High Resolution Spatial Transcriptomic data assuming that it follows
+* FaST will perform complete analysis of High Resolution Spatial Transcriptomic data assuming that it follows
 the OpenST or seqscope format, and in particular: 
 
 1) the reads in R1_fq.gz file(s) should match the barcode files in the folder provided as an argument to -t. 
