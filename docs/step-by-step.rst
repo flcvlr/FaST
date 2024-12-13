@@ -9,7 +9,7 @@ In this tutorial, I am assuming that you have downloaded and dumped the followin
 * `SRR27331460 <https://trace.ncbi.nlm.nih.gov/Traces/sra?run=SRR27331460>`_
 * `fc_1.fastq.gz.1 <https://sra-pub-src-2.s3.amazonaws.com/SRR27331427/fc_1.fastq.gz.1>`_
 
-after dumping the SRA files (see `here<https://github.com/ncbi/sra-tools/wiki/HowTo:-fasterq-dump>`_ for details) you are supposed to have:
+after dumping the SRA files (see `here <https://github.com/ncbi/sra-tools/wiki/HowTo:-fasterq-dump>`_ for details) you are supposed to have:
 
 fc_1.fastq.gz.1			This is the file containing the full sequencing of the Illumina flowcell
 SRR27331459_1.fastq.gz		This is the file containing read 1 (barcode sequences) of replicate 1
