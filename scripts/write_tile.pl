@@ -21,13 +21,16 @@ while (my $linein =<$in>) {
 	if ($bc !~ /N/) {
 		$bc =~ tr/ACGT/TGCA/;
 		if (exists $tile_map{$bc}) {
-			$dup_bc{$bc}++;
+			$dup_bc{$bc}+=2;
 			delete $tile_map{$bc};
 		}
 		else {
 			if (!exists $dup_bc{$bc}) {
 				$y = (split(" ",$y))[0];
 				$tile_map{$bc} = "$x\t$y\n";
+			}
+			else {
+				$dup_bc{$bc}++;
 			}
 		}
 	}	
@@ -44,5 +47,12 @@ while ((my $b,my $c)= each(%tile_map)){
 	$counter ++;
 	print $out_gz "$b\t$c";
 }
+my $ambigous = keys(%dup_bc);
+
+my $removed = 0;
+foreach my $k (keys(%dup_bc)) {
+	$removed += $dup_bc{$k};
+	}
+print STDERR "removed $ambigous barcode sequences (corresponding to $removed pucks) from $tile\n";
 close $out_gz;
 close $out_idx;

@@ -1,145 +1,244 @@
 use warnings;
 use strict;
 use File::Basename;
+use GD::Simple;
 
-##### input is the output preparse_bed.pl (piped then through sort | uniq -c) in the format:  Number\tGENENAME\tLOC\tBC\tUMI\tx_coord\ty_coord where Number is the # of reads found for each molecule of transcript.
-##### this script will:
-#1)  output a sparse matrix containing puck level counts for each gene (along with an ordered list of genes and Barcodes (one barcode = one puck)
-#2)   print a baysor input file to be used for segmentation of cells.
 
 my $inline;
-my %H_o_H;  ### hash of hashes sparse matrix: $H_of_H{barcode}{gene}
-my %H_o_H_intronic;  ### hash of hashes sparse matrix: $H_of_H_intronic{barcode}{gene}
-my $exonic;
-my $intronic;
-my %gene_list;
-my %bc_list;
-my $num;
-my $gene;
-my %H_of_counts;
-my $loc;
-my $bc;
-my $umi;
-my $x;
-my $y;
-my $k;
-my $v;
+my @A_of_s;  
+my $gene_list=" ";
 my $non_zero=0;
-my $gene_in_tile=1;
-my $bc_in_tile=1;
-my %nuc_score;
-my %cyto_score;
-
+my @map;
+$map[ord("A")]="00";
+$map[ord("C")]="01";
+$map[ord("G")]="10";
+$map[ord("T")]="11";
+my %pam=("00"=>"A","01"=>"C","10"=>"G","11"=>"T");
+my $N = 0;
+my $M = 0;
 my @cyto_scores;
 my @nuc_scores;
+my %genes;
+my $tile = $ARGV[1];
+my $umi_len;
+my $offset_x;
+my $offset_y;
 
-my $tile = basename($ARGV[1],".DGE_input.txt.gz");
-my %tile_nuc_counts;
-my %tile_cyto_counts;
-
-### open bam tag summary file (#reads\tGENE\tBARCODE\tUMI\txcoord\tycoord) and adds the gene name and barcode to the %gene_list and %bc_list (if not found yet), then adds 1 count to $H_of_H{bc}{gene} sparse matrix and updates the %H_of_counts hash
-
-open (my $input_DGE, "-|","gzip -cd $ARGV[1]")  || die "cannot open $ARGV[2]\n";
-
-while ($inline = <$input_DGE>) {
-	chomp $inline;
-	($num,$gene,$loc,$x,$y,$bc,$umi) = split("\t",$inline);
-	if ($loc eq "NU") {$nuc_score{$bc}++;$H_o_H_intronic{$bc}{$gene}++;}
-	if ($loc eq "CY") { $cyto_score{$bc} ++;}
-	if (!exists($gene_list{$gene})) {$gene_list{$gene} =$gene_in_tile;$gene_in_tile +=1} ### so each slot of %gene_list will contain a new integer
-	if (!exists($bc_list{$bc})) {$bc_list{$bc} =$bc_in_tile;$bc_in_tile +=1}  ### so each slot of %bc_list will contain a new integer
-	if (!exists($H_o_H{$bc}{$gene})) { $non_zero++;}
-	$H_o_H{$bc}{$gene}++;
-	$H_of_counts{$bc}{"counts"}++;
-	$H_of_counts{$bc}{"reads"}+= $num; 
-	$H_of_counts{$bc}{"coord"}="$x,$y";
-	}
-
-close $input_DGE;
-### writes the sparse matrix stored in %H_of_H to txt matrixmarket format
-
-open(my $out_fh,">", "$ARGV[0]/dge/dge.$tile.txt");
-
-my $N = keys %gene_list;
-my $M = keys %bc_list;
-print $out_fh "%\%MatrixMarket  matrix coordinate integer general\n$M $N $non_zero\n";
-foreach $bc (keys %H_o_H) {
-	foreach $gene (keys %{$H_o_H{$bc}}) {
-		print $out_fh "$bc_list{$bc} $gene_list{$gene} $H_o_H{$bc}{$gene}\n";
+if ($ARGV[3] eq "Illumina") {
+	$umi_len=9;
+	my $swath= substr($tile,3,1);
+	my $tile_id = substr($tile,4,2);
+	#$tile_id =~ s/^0//;
+	$offset_x= int(($swath*2164.421)+0.5);
+	$offset_y = int((2327.559 * $tile_id)+0.5);
+	if (($swath % 2) == 0) {
+		if (substr($tile,2,1) eq "1") {$offset_y -= 387;}
+		else {$offset_y += 387;}
 	}
 }
-close $out_fh;
 
-### save ordered lists of genes and barcodes per tile (to be used when opening the sparse matrix file).
+if ($ARGV[3] eq "Stereo-seq") {
+	$umi_len=10;
+	$offset_x=substr($tile,0,2)*8000;
+	$offset_y=substr($tile,2,2)*8000;
+	}
 
-open(my $out_gene_list,">","$ARGV[0]/dge/$tile.gene_list");
-foreach  $gene (sort { $gene_list{$a} <=> $gene_list{$b} } keys %gene_list) {print $out_gene_list "$gene\n";}
-close $out_gene_list;
+my $umi_shift = $umi_len+1;
 
-open(my $out_bc_list,">","$ARGV[0]/dge/$tile.bc_list");
-foreach  $bc (sort { $bc_list{$a} <=> $bc_list{$b} } keys %bc_list) {print $out_bc_list "$bc\n";}
-close $out_bc_list;
 
-### save spateo input
-
-open (my $spateo, ">", "$ARGV[0]/dge/$tile.spateo.txt");
-print $spateo "x\ty\tgeneID\tMIDCounts\tEXONIC\tINTRONIC\n";
-foreach $bc (keys %H_o_H) {
-	foreach $gene (keys %{$H_o_H{$bc}}) {
-		if (exists $H_o_H_intronic{$bc}{$gene}) {
-			$exonic= $H_o_H{$bc}{$gene} - $H_o_H_intronic{$bc}{$gene}; 
-			$intronic = $H_o_H_intronic{$bc}{$gene};
+open(my $in, "<","$ARGV[0]/$tile") || die "cannot open $tile fifo\n$!";
+my %counts;
+my %umis;
+while ($inline = <$in>) {
+	chomp $inline;
+	my ($gene,$loc,$umi,$coord) = split("\t",$inline);
+	if (! exists $genes{$gene}) { $genes{$gene} = ++$N;}
+	$counts{$gene}+=1;
+	if (exists($A_of_s[$coord])) {
+		my $idx = index($A_of_s[$coord], "\t$gene ");
+		if ($idx == -1) {
+			$non_zero++;
+			$A_of_s[$coord] .= "$gene ${umi}$loc\t";
+			$umis{$gene}+=1;
 		}
 		else {
-			$exonic = $H_o_H{$bc}{$gene};$intronic=0;
+			$idx += length($gene)+2;
+			my $info = substr($A_of_s[$coord],$idx,(index($A_of_s[$coord], "\t", $idx)-($idx)));
+			my $position=0;
+			foreach my $rec_umi (unpack("(A$umi_shift)*",$info)) {
+				if ($rec_umi eq $umi."N") { 
+					substr($info,$position+$umi_len,1)=$loc;
+					last;
+				}
+				if ($rec_umi eq $umi."Y") {
+					if ($loc eq "U") {
+						substr($info,$position+$umi_len,1)=$loc;
+					}
+				last;
+				}
+				if ($rec_umi eq $umi."U") {
+				last;
+				}
+			$position+=$umi_shift;
+			}				
+			if ($position == length($info)) {
+				$info = $umi.$loc.$info;
+				$umis{$gene}+=1;
+			}
+			substr($A_of_s[$coord],$idx,(index($A_of_s[$coord], "\t", $idx)-($idx))) = $info;
 		}
-		($x,$y)=split(",",$H_of_counts{$bc}{'coord'});
-		$x = int($x/9);
-		$y = int($y/9);
-		print $spateo "$x\t$y\t$gene\t$H_o_H{$bc}{$gene}\t$exonic\t$intronic\n";
 	}
-	if ($H_of_counts{$bc}{'counts'} > 4) {
-		if (!exists $nuc_score{$bc}) {push  @nuc_scores, 0;} else {push @nuc_scores, $nuc_score{$bc}/$H_of_counts{$bc}{'counts'};}
-		if (!exists $cyto_score{$bc}) {push  @cyto_scores, 0;} else {push @cyto_scores, $cyto_score{$bc}/$H_of_counts{$bc}{'counts'};}
+	else {
+		$M ++;
+		$non_zero++;
+		$A_of_s[$coord] = "\t$gene ".$umi.$loc."\t";
+		$umis{$gene}+=1;
 	}
 }
+my $t = (split(" ",localtime))[3];
+print "$t\tCollected ${.} reads for tile $tile\n";
+### writes the sparse matrix stored in %H_of_H to txt matrixmarket format
+open (my $spateo, ">", "$ARGV[0]/dge/$tile.spateo.txt");
+print $spateo "x\ty\tgeneID\tMIDCounts\tEXONIC\tINTRONIC\n";
 
+open(my $out_fh,">", "$ARGV[0]/dge/dge.$tile.txt");
+my $bc_seq=0;
+my @barcodes_list;
+my @scores;
+
+my $xmin=1000000;
+my $xmax=0;
+my $ymin=1000000;
+my $ymax=0;
+print $out_fh "%\%MatrixMarket  matrix coordinate integer general\n$M $N $non_zero\n";
+foreach my $coord (0..$#A_of_s) {
+	if ($A_of_s[$coord]) {
+		$bc_seq++;
+		$barcodes_list[$bc_seq]=$coord;
+		substr($A_of_s[$coord],0,1)="";
+		my $bc_count=0;
+		my $cyto_score= 0;
+		my $nuc_score=0;
+		my $x = ($coord % 3000)+$offset_x;
+		if ($xmin > $x) {$xmin=$x;}
+		if ($xmax < $x) {$xmax=$x;}
+		my $y=int($coord/3000)+$offset_y;
+		if ($ymin > $y) {$ymin=$y;}
+		if ($ymax < $y) {$ymax=$y;}
+		foreach my $info (split("\t",$A_of_s[$coord])) {
+			my @data = split(" ",$info);
+			my $cyto_score = 0;
+			my $nuc_score= 0;
+			my $gene_idx = $genes{$data[0]};
+			my $intronic = $data[1] =~ tr/U/N/;
+			my $spliced = $data[1] =~ tr/Y/N/;
+			my $num = $data[1] =~ tr/N/N/;
+			my $exonic = $num - $intronic;
+			print $out_fh "$bc_seq $gene_idx $num\n";
+			print $spateo "$x\t$y\t$data[0]\t$num\t$exonic\t$intronic\n";
+			$bc_count += $num;
+			$cyto_score +=$spliced;
+			$nuc_score += $intronic;
+		}
+		if ($bc_count > 4) {
+			$cyto_score = $cyto_score/$bc_count;
+			$nuc_score = $nuc_score/$bc_count;
+			if ($cyto_score > 0) {push @cyto_scores, $cyto_score;}
+			if ($nuc_score > 0) {push @nuc_scores, $nuc_score;}
+			push @scores, "$bc_seq\t$cyto_score\t$nuc_score";
+		}
+	}		
+}			
+	
+
+close $out_fh;
 close $spateo;
+
+### save ordered lists of genes and barcodes per tile (to be used when opening the sparse matrix file).
+my @genes;
+while (my ($k, $n) = each %genes) {
+	$genes[$n]=$k;
+}
+open(my $out_gene_list,">","$ARGV[0]/dge/$tile.gene_list");
+open(my $out_gene_stats,">","$ARGV[0]/dge/$tile.counts_stats");
+my $tile_counts=0;
+my $tile_umis=0;
+foreach my $n (1..$#genes) {
+	print $out_gene_list "$genes[$n]\n";
+	print $out_gene_stats "$genes[$n]\t$counts{$genes[$n]}\t$umis{$genes[$n]}\n";
+	$tile_counts += $counts{$genes[$n]};
+	$tile_umis += $umis{$genes[$n]};
+	}
+close $out_gene_list;
+open(my $tile_log, ">", "$ARGV[0]/logs/$tile.tile.log");
+print $tile_log "UMIs:\t$tile_umis\nCOUNTS\t$tile_counts\nCOORDS:\t$xmin\t$xmax\t$ymin\t$ymax\n";
+close $tile_log;
+$t = (split(" ",localtime))[3];
+print "$t\tcollected $tile_umis UMIs ($tile_counts counts) for tile $tile\n";
+
+open(my $out_bc_list,">","$ARGV[0]/dge/$tile.bc_list");
+foreach my $b (@barcodes_list[1..$bc_seq])  {print $out_bc_list "$b\n";}
+close $out_bc_list;
+
+unlink "$ARGV[0]/$tile";
 		
 ### prepare nucleo/cytoplasm data
-
+my @cyto_bc;
+my @nuc_bc;
+my @tile_nuc_counts;
+my @tile_cyto_counts;
 if ($ARGV[2] ne "apex") {
 	my @sorted = sort { $b <=> $a } @cyto_scores;
 	my $cyto_threshold=$sorted[int($#sorted*0.25)];
 	@sorted = sort { $b <=> $a } values @nuc_scores;
 	my $nuc_threshold=$sorted[int($#sorted*0.25)];
-	foreach $bc (keys(%H_o_H)) {
-		if ($H_of_counts{$bc}{'counts'} < 5) {next;}
-		if (exists $cyto_score{$bc}) {
-			if ($cyto_score{$bc}/$H_of_counts{$bc}{'counts'} > $cyto_threshold) {
-				foreach $gene (keys %{$H_o_H{$bc}}) {
-					$tile_cyto_counts{$gene} += $H_o_H{$bc}{$gene}
-				}
+	
+	foreach my $item (@scores) {
+		my ($id, $nuc_score, $cyto_score) =split("\t",$item);
+		if ($cyto_score > $cyto_threshold) {
+			push  @cyto_bc, $id;
 			}
-		}
-		if (exists $nuc_score{$bc}) {
-			if ($nuc_score{$bc}/$H_of_counts{$bc}{'counts'} > $nuc_threshold) {
-				foreach $gene (keys %{$H_o_H{$bc}}) {
-					$tile_nuc_counts{$gene} += $H_o_H{$bc}{$gene}
-				}
-			}
+		if ($nuc_score > $nuc_threshold) {
+			push @nuc_bc, $id;
 		}
 	}
-
+	open(my $MM_in, "<","$ARGV[0]/dge/dge.$tile.txt");
+		my $header= <$MM_in>;
+		$header= <$MM_in>;
+		my $nuc = shift @nuc_bc;
+		while (my $entry=<$MM_in>) {
+			my ($bc_id, $gene_id, $counts)=split(" ", $entry);
+			while ($nuc < $bc_id) {$nuc = shift @nuc_bc;}
+			if ($nuc == $bc_id) {$tile_nuc_counts[$gene_id] += $counts;}
+		}
+	close $MM_in;
 	open (my $nuclear, ">", "$ARGV[0]/dge/$tile.nuclear");
-	while (($k, $v)=each %tile_nuc_counts) {
-		print $nuclear "$k\t$v\n";
+	my $i =1;
+	foreach my $gene (keys %genes) {
+		if (exists $tile_nuc_counts[$i]) {
+			print $nuclear "$gene\t$tile_nuc_counts[$i]\n";
+		}
+		$i++;
 	}
 	close $nuclear;
-
-	open (my $cytoplasmic, ">", "$ARGV[0]/dge/$tile.cytoplasmic") || die;
-	while (($k, $v)=each %tile_cyto_counts) {
-		print $cytoplasmic "$k\t$v\n";
+	
+	open($MM_in, "<","$ARGV[0]/dge/dge.$tile.txt");
+		$header= <$MM_in>;
+		$header= <$MM_in>;
+		my $cyto = shift @cyto_bc;
+		while (my $entry=<$MM_in>) {
+			my ($bc_id, $gene_id, $counts)=split(" ", $entry);
+			while ($cyto < $bc_id) {$cyto = shift @cyto_bc;}
+			if ($cyto == $bc_id) {$tile_cyto_counts[$gene_id] += $counts;}
+		}
+	close $MM_in;
+	open (my $cytoplasmic, ">", "$ARGV[0]/dge/$tile.cyto");
+	$i =1;
+	foreach my $gene (keys %genes) {
+		if (exists $tile_cyto_counts[$i]) {
+			print $cytoplasmic "$gene\t$tile_cyto_counts[$i]\n";
+		}
+		$i++;
 	}
 	close $cytoplasmic;
 }

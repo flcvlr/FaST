@@ -7,7 +7,7 @@ my $start;
 open (my $gtf, "<", "$ARGV[2]");
 open (my $out, ">","$ARGV[0]/$ARGV[1].exons.bed");
 while (my $linein = <$gtf>) {
-	if ($linein !~/^chr/) {next;}
+	if ($linein =~/^#/) {next;}
 	@d =split("\t",$linein);
 	if ($d[2]eq "exon") {
 	$linein =~ /gene_name "([^"]+)"/;

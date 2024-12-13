@@ -6,7 +6,7 @@ FaST_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && cd -- ..
 show_help() {
 	cat $SCRIPT_DIR/help_reference
 	}
-while getopts "hs:f:g:v:" opt; do
+while getopts "hs:f:g:v:S:" opt; do
     case "$opt" in
     h)  show_help
         exit 0
@@ -18,6 +18,9 @@ while getopts "hs:f:g:v:" opt; do
     g)  gtf=$OPTARG
         ;;
     v)  gencode_version=$OPTARG
+        ;;
+    S)  sparse=$OPTARG   
+        ;;
     esac
 done
 
@@ -49,10 +52,10 @@ if [ -z "$fasta" ]; then
     cd ../
     zcat tmp/*.primary_assembly.genome.fa.gz > $out_dir/$species.genome.fa
     fasta="$out_dir/$species.genome.fa"
-    echo -n "Using gencode $gencode_version fasta file reference" > $out_dir/$species.local_reference_files_used_for_indexes.log
-    ls tmp/*.fa.gz >> $out_dir/$species.local_reference_files_used_for_indexes.log
+    echo -n "Using gencode $gencode_version fasta file reference: " > $out_dir/$species.reference.log
+    ls tmp/*.fa.gz >> $out_dir/$species.reference.log
 else
-    echo "using fasta file $fasta" > $out_dir/$species.local_reference_files_used_for_indexes.log
+    echo "using fasta file $fasta" > $out_dir/$species.reference.log
 fi
     
     
@@ -66,8 +69,8 @@ if [ -z "$gtf" ]; then
     cd ../
     zcat tmp/gencode.*.annotation.gtf.gz > $out_dir/$species.annotation.gtf
     gtf="$out_dir/$species.annotation.gtf"
-    echo -n "Using gencode $version annotation" >> $out_dir/$species.referencelog
-    ls tmp/*.gtf.gz >> $out_dir/$species.reference_files_used_for_indexes.log
+    echo -n "Using gencode $version annotation: " >> $out_dir/$species.reference.log
+    ls tmp/*.gtf.gz >> $out_dir/$species.reference.log
 else
     echo "using gtf file $gtf" >> $out_dir/$species.reference_files_used_for_indexes.log
 fi
@@ -87,14 +90,9 @@ cat $out_dir/$species.Mirna_host_genes $FaST_DIR/data/APEX_seq_nuclear_$species 
 rm -r ./tmp
 perl  $SCRIPT_DIR/reference_preparation/chr_len.pl $fasta > $out_dir/$species.chr_len
 
-perl $SCRIPT_DIR/reference_preparation/exons_from_gtf_1.pl $out_dir $species $gtf
-awk '{if ($3=="gene") print}' $gtf | bedtools subtract -a - -b $out_dir/$species.exons.bed -s | perl $SCRIPT_DIR/reference_preparation/introns_from_gtf.pl $out_dir $species
-cat $out_dir/$species.introns.bed $out_dir/$species.exons.bed > $out_dir/$species.GENE_annotation_intron_exon.bed
-
-
-awk '{if ($3=="gene") print}' $gtf | bedtools slop -i - -b 100 -g $out_dir/$species.chr_len | bedtools complement -i - -g $out_dir/$species.chr_len | bedtools maskfasta -fi $fasta -bed - -fo $out_dir/masked_genome.fa 
-cat $SCRIPT_DIR/../data/*_45S_$species.fasta $SCRIPT_DIR/../data/PhiX.fasta  $out_dir/masked_genome.fa > $out_dir/$species.masked_genome_w_45s_phix.fa 
-STAR --runMode genomeGenerate --runThreadN 20   --genomeDir $out_dir/$species.star --genomeFastaFiles $out_dir/$species.masked_genome_w_45s_phix.fa  --genomeSAsparseD $sparse --sjdbGTFfile $gtf 2> $out_dir/$species.STAR.log
+#awk '{if ($3=="gene") print}' $gtf | bedtools slop -i - -b 100 -g $out_dir/$species.chr_len | bedtools complement -i - -g $out_dir/$species.chr_len | bedtools maskfasta -fi $fasta -bed - -fo $out_dir/masked_genome.fa 
+cat $SCRIPT_DIR/../data/*_45S_$species.fasta $SCRIPT_DIR/../data/PhiX.fasta  $fasta > $out_dir/$species.genome_w_45s_phix.fa 
+STAR --runMode genomeGenerate --runThreadN 20   --genomeDir $out_dir/$species.star --genomeFastaFiles $out_dir/$species.genome_w_45s_phix.fa --genomeSAindexNbases 14 --genomeSAsparseD 2 --sjdbGTFfile $gtf 2> $out_dir/$species.STAR.log
 
 exit
 
