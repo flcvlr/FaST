@@ -5,9 +5,9 @@ FaST
 This is the main command to run FaST, after generating a reference (with FaST-reference) and a map of 
 the Illumina flowcell used to capture the RNA (using FaST-map).
 
-======================
+
 Usage
-======================
+------------------------
 
 Command syntax:
 
