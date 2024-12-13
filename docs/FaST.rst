@@ -63,9 +63,9 @@ Option         Description
 
 
 	
-======================
+
 Notes
-======================
+------------------------
 
 * FaST will perform complete analysis of High Resolution Spatial Transcriptomic data assuming that it follows the OpenST/Seqscope/Nova-ST or Stereo-seq format, and in particular: 
 

@@ -10,9 +10,9 @@ its work by simply opening a new terminal window and listing the contents of the
 expected to process (and therefore generate corresponding output files) several tiles per minute. Generation of .idx 
 files will start with a small lag, approximately after the first 20 tiles have been processed.
 
-======================
+
 Usage
-======================
+-------------------
 
  
 Command syntax:
@@ -34,9 +34,9 @@ The second argument is the path to a folder (FaST-map will create it if that doe
 per tile map. You will have to provide this path to FaST as an argument to the ``-t`` option in the analysis of the 
 2nd sequencing.
 
-================
+
 Notes on fastq.gz input files
-================
+-------------------
     
 * Please bear in mind that order matters in this case as the reads are expected to occur in order by tile as per 
   Illumina default policy. If you rejoin fastq.gz chunks in the wrong order data of the tiles across two files will

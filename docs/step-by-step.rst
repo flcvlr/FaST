@@ -25,9 +25,9 @@ scripts/
 docs/
 data/
 
-===================
+
 Step 1: FaST-map
-===================
+-------------------
 
 You need:
 
@@ -43,9 +43,9 @@ After processing each tile, it will issue a line informing you about the number 
 about 3500 tiles in an Illumina flowcell.
 
 
-===================
+
 Step 2: FaST-reference
-===================
+-------------------
 
 You need:
 
@@ -62,9 +62,9 @@ This command will take about 20 minutes to download genomic data and build a STA
 Beware, even if you already have a STAR index built on the mouse genome, this step is still required, 
 as FaST-reference will also prepare a set of annotation files that should match the precise gtf and fasta you are using here.
 
-===================
+
 Step 3: FaST
-===================
+-------------------
 
 You need:
 
