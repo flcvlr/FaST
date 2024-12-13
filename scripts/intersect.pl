@@ -177,7 +177,7 @@ while (my($k, $v) =each %output) {
 my $t = (split(" ",localtime))[3];
 if (($rRNA + $Phix) > 0) {
 	my $t = (split(" ",localtime))[3];
-	$thread =$ARGV[4]+1;
+	my $thread =$ARGV[4]+1;
 	print "$t\tThread $thread finished processing ${.} alignments.\tPhiX mapped reads: $Phix\trRNA mapped reads:\t$rRNA\n";
 }
 
