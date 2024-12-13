@@ -5,9 +5,9 @@ Step by step guide to FaST pipeline
 
 In this tutorial, I am assuming that you have downloaded and dumped the following data from SRA:
 
-* `SRR27331459 <https://trace.ncbi.nlm.nih.gov/Traces/sra?run=SRR27331459>_`
-* `SRR27331460 <https://trace.ncbi.nlm.nih.gov/Traces/sra?run=SRR27331460>_`
-* `fc_1.fastq.gz.1 <https://sra-pub-src-2.s3.amazonaws.com/SRR27331427/fc_1.fastq.gz.1>_`
+* `SRR27331459 <https://trace.ncbi.nlm.nih.gov/Traces/sra?run=SRR27331459>`_
+* `SRR27331460 <https://trace.ncbi.nlm.nih.gov/Traces/sra?run=SRR27331460>`_
+* `fc_1.fastq.gz.1 <https://sra-pub-src-2.s3.amazonaws.com/SRR27331427/fc_1.fastq.gz.1>`_
 
 after dumping the SRA files (see `here<https://github.com/ncbi/sra-tools/wiki/HowTo:-fasterq-dump>_` for details) you are supposed to have:
 
