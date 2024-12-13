@@ -3,6 +3,7 @@ channels:
   - conda-forge
   - bioconda
 dependencies:
+  - perl-gd
   - pip=23.3.2
   - python=3.10
   - STAR=2.7.11b
