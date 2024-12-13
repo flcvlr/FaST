@@ -1,6 +1,6 @@
 Usage:
 
-FaST -1 <R1_fq.gz> -2 <R2.fq.gz> -s <species> -n <name of sample> -t <folder/with/tiles/map>  -c <file/with/tiles/offsets>  [-j n -T <float> -k <integer> -m <string> -f -S -R <float>]
+FaST -1 <R1_fq.gz> -2 <R2.fq.gz> -s <species> -n <name of sample> -t <folder/with/tiles/map>   [-j n -B <integer> -K <integer>  -f -S -M -I -P -R <float>]
 
 -1	path to a gzipped fastq file containing the sequence of the barcodes. If the data is split in several pairs 
 	of R1 and R2 files, list all R1 files separated by commas.
@@ -15,19 +15,16 @@ FaST -1 <R1_fq.gz> -2 <R2.fq.gz> -s <species> -n <name of sample> -t <folder/wit
 -R	ratio of barcodes found to select a tile. Default is 0.1 (i.e. only retain tiles in which at least 10%
 	of the barcodes assigned to that tile are found in the sequencing)
 -j	max number of jobs to run in parallel during alignment (default=20, suggested value: num_threads -4).
--k      kernel density to use in cell segmentation. 11 > odd_integer > 1 (default=7 for human, k=5 for mouse).
--T      Threshold to use for EM_BP function during RNA segmentation. Values between 0.3 and 0.6 are generally
-        appropriate. If omitted, spateo-release will evaluate one for each tile (but this can result into uneven 
-        segmentation efficiency across tiles).
--m      Method to use to pick nuclear labels for segmentation. Either "apex" or "nuc". "apex" instructs
-        FaST to run nuclear segmentation using Apex-seq set of nuclear genes. "nuc" innstead will first run
-        a differential expression to identify genes co-expressed with introns and miR host genes and then use 
-        those genes to guide nuclear segmentation. Default:"apex".
+-K      kernel density to use in cell segmentation. 11 > odd_integer > 1 (default=3).
+-B	Binsize used to bin RNA density during segmentation (default=20)
 -f      No argument. Forces full re-analysis of the sample, including preprocessing alignment and DGE. If aligned
 	reads are found in the sample folder, default behaviour is to run only segmentation analysis (if -S is set).
--H	No argument. Use if running FaST on an HPC cluster. This option instructs FaST to process each couple of 
-	fastq.gz files in parallel. Has no effect in case all reads are in a single pair (i.e. R1 and R2) of 
-	fastq files. Requires about 20 Gb of RAM for each pair of R1 and R2 fastq files.
+-P	Remove pseudogenes from annotation before running FaST. this increases by ~ 10% the number of reads mapping
+	to a single gene, as many genes have some matching pseudogene somewhere in the genome which gives rise to 
+	multiple mappings.
+-I	Include intergenic reads as proof of cells during segmentation (experimental, use at your own risk....)
+-M	Include reads mapping to multiple genes reads as proof of cells during segmentation (experimental, 
+	use at your own risk....)
 -S	No argument. If this is passed to FaST it will also perform RNA segmentation with spateo-release package.
 
 FaST will perform complete analysis of High Resolution Spatial Transcriptomic data assuming that it follows
@@ -54,15 +51,14 @@ FaST requires the bash shell, with support for command substitution, sed, awk, s
 These features are already present in any recent linux distribution which has a bash shell.
 
 The only required softwares are:
+Perl GD module
 bedtools v2.30.0 or later
 samtools v1.19.2 (but any version will likely work as the only samtool invoked by FaST is "samtools view")
 STAR v2.7.11a or later 
 spateo-release v1.0.2 (for RNA segmentation only)
 scanpy v1.10.1 or later (optional, for automated exploratory analysis)
 
-To install bedtools, samtools and STAR, please refer to the corresponding documentation.
-
-Spateo release and scanpy can be installed with pip.
+To install dependencies, you can use conda, a yaml environment file is in the data directory of the FaST distribution
 
 Hardware and time considerations:
 FaST will take advantage of available threads, with the limit enforced by option -j in place for bowtie2 and STAR alignment. 
