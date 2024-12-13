@@ -9,7 +9,7 @@ In this tutorial, I am assuming that you have downloaded and dumped the followin
 * `SRR27331460 <https://trace.ncbi.nlm.nih.gov/Traces/sra?run=SRR27331460>`_
 * `fc_1.fastq.gz.1 <https://sra-pub-src-2.s3.amazonaws.com/SRR27331427/fc_1.fastq.gz.1>`_
 
-after dumping the SRA files (see `here<https://github.com/ncbi/sra-tools/wiki/HowTo:-fasterq-dump>_` for details) you are supposed to have:
+after dumping the SRA files (see `here<https://github.com/ncbi/sra-tools/wiki/HowTo:-fasterq-dump>`_ for details) you are supposed to have:
 
 fc_1.fastq.gz.1			This is the file containing the full sequencing of the Illumina flowcell
 SRR27331459_1.fastq.gz		This is the file containing read 1 (barcode sequences) of replicate 1
@@ -94,10 +94,10 @@ The whole analysis should take no more than ~ 1 hour on a recent multicore proce
 
 You will find output in the following directories:
 
-mouse_head/seg_k_3_binsize_20/:	UMAP, Segmented cells in spatial coordinates (with clusters highlighted), a short log reporting the number of cells, histograms reporting cell area, counts and genes
-mouse_head/Aligned.bam:      	Bam file containing the alignments of R2 reads, with barcodes and coordinates as bam tags.
-mouse_head/logs/run.log		A short log reporting the command line options, for your future reference. This log is created when you first run FaST and align reads. If you run again FaST with different options, FaST will append info to this file, so that you will be able to know what you have done. This log is erased and overwritten if you use option -f to run again the pre-processing and alignment of the reads.
-mouse_head/logs/		Several logs about single tiles statistics, including counts and UMIs
+* mouse_head/seg_k_3_binsize_20/:	UMAP, Segmented cells in spatial coordinates (with clusters highlighted), a short log reporting the number of cells, histograms reporting cell area, counts and genes
+* mouse_head/Aligned.bam:      	Bam file containing the alignments of R2 reads, with barcodes and coordinates as bam tags.
+* mouse_head/logs/run.log		A short log reporting the command line options, for your future reference. This log is created when you first run FaST and align reads. If you run again FaST with different options, FaST will append info to this file, so that you will be able to know what you have done. This log is erased and overwritten if you use option -f to run again the pre-processing and alignment of the reads.
+* mouse_head/logs/		Several logs about single tiles statistics, including counts and UMIs
      
      
 In case you want to re-run FaST with different parameters (usually, to repeat segmentation) just run:
