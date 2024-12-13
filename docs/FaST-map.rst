@@ -23,21 +23,13 @@ Command syntax:
 
 The first argument should be the path to the gzipped fastq file containin the first sequencing results. 
 If the results were (rigorously, i.e. the fastq file was split in between records before compression of each chunk)
-split into several different files, those can be simply concatenated by:
-
-.. code-block:: bash
-
-    $ cat file1.fastq.gz file2.fastq.gz file3.fastq.gz > big.file.fastq.gz
-
-or, in case you do not care of saving on your filesystem the whole file (which will just occupy space for duplicated
-data)
+split into several different files, those can be simply concatenated on the fly by:
 
 .. code-block:: bash
 
    $ FaST-map <(cat file1.fastq.gz file2.fastq.gz file3.fastq.gz) </target/folder>
    
-should also work.
-    
+
 The second argument is the path to a folder (FaST-map will create it if that does not exist yet) to save the barcodes
 per tile map. You will have to provide this path to FaST as an argument to the ``-t`` option in the analysis of the 
 2nd sequencing.
@@ -54,8 +46,7 @@ Notes on fastq.gz input files
   space) FaST-map will throw an error upon reaching the trunkated end of the gzipped file. In that case a few corrupted 
   tiles may be generated. Those will correspond to files in the output directory with size = 0. Remove all (both .txt.gz 
   and .idx) output for all tiles in which either of the files has size = 0 bytes or later FaST will fail.
-* Please note that if a large fastq.gz has been split into multiple chunks arbitrarily (i.e. without decompressing 
-  first, then splitting in between two fastq records and finally recompressing the resulting chunks) it should be 
+* Please note that if a large fastq.gz has been split into multiple chunks arbitrarily it should be 
   appropriately rejoined before processing. If you are unsure about that, ask those who split the file how to 
   restore it.
 
