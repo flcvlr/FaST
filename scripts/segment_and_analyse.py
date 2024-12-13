@@ -126,7 +126,7 @@ fig.savefig(dataset+'/'+output+'/area_histogram_RNA_segmented_pre_filtering.png'
 
 
 sc.pp.filter_cells(cell_adata, min_counts=200)
-sc.pp.filter_cells(cell_adata, max_counts=2000)
+sc.pp.filter_cells(cell_adata, max_counts=3000)
 cell_adata = cell_adata[cell_adata.obs["pct_counts_mt"] < 20].copy()
 sc.pp.filter_genes(cell_adata, min_cells=10)
 
