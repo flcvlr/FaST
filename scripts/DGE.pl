@@ -1,7 +1,7 @@
 use warnings;
 use strict;
 use File::Basename;
-use GD::Simple;
+
 
 
 my $inline;
