@@ -23,7 +23,7 @@ nuc_markers_file = open(sys.path[0]+'/../reference/'+sys.argv[4]+'/'+sys.argv[4]
 nuc_markers = nuc_markers_file.read().strip().split("\n")
 
 adata = st.io.read_bgi_agg(dataset+'/dge/whole_dataset.txt',gene_agg={'nuclear': nuc_markers})
-plt.imsave(dataset+'/read_density.png', adata.X.toarray().transpose(), cmap='binary')
+plt.imsave(dataset+'/read_density.png', adata.X.toarray().transpose(), vmax=numpy.percentile(adata.X.toarray(),95), cmap='binary')
 
 ### nuclear markers
 
