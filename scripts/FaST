@@ -202,7 +202,6 @@ else
     fi
 fi
       
-perl $SCRIPT_DIR/plot.pl $sample 
 TIME=`date | cut -f 4 -d ' '`
 if [ -z "$segment" ]; then
     echo -e "$TIME\tAlignment and DGE: done. No segmentation requested. Exiting..."
