@@ -170,7 +170,7 @@ else
     echo -e "$COUNTS reads with valid alignment and spatial mapping\n$UMI UMIs with spatial mapping\n$SAT library saturation\n" >> $sample/logs/run.log
     echo -e "$TIME\tFound $COUNTS reads with valid alignment and spatial mapping; $UMI UMIs with spatial mapping; library saturation is $SAT\n"
 fi
-
+export $sample
 if [ $protocol == "Illumina" ]; then
     if [ $MULTI == "1" ]; then
         if [ $INTERGENIC == "1" ]; then 
@@ -189,15 +189,23 @@ if [ $protocol == "Illumina" ]; then
 else
     if [ $MULTI == "1" ]; then
         if [ $INTERGENIC == "1" ]; then 
-            cat $sample/swaths | xargs -i -P 4 bash -c 'cat  $sample/dge/{}*spateo.txt | fgrep -v MIDCounts  | fgrep -v Multigene | fgrep -v Intergenic | cat <( echo -e "x\ty\tgeneID\tMIDCounts\tEXONIC\tINTRONIC") - > $sample/dge/{}_dataset.txt'
+           for i in $(cat $sample/swaths); do 
+               cat  $sample/dge/${i}*spateo.txt | fgrep -v MIDCounts  | fgrep -v Multigene | fgrep -v Intergenic | cat <( echo -e "x\ty\tgeneID\tMIDCounts\tEXONIC\tINTRONIC") - > $sample/dge/${i}_dataset.txt
+           done               
         else
-            cat $sample/swaths | xargs -i -P 4 bash -c 'cat  $sample/dge/{}*spateo.txt | fgrep -v MIDCounts  | fgrep -v Multigene | cat <( echo -e "x\ty\tgeneID\tMIDCounts\tEXONIC\tINTRONIC") - > $sample/dge/{}_dataset.txt'
+            for i in $(cat $sample/swaths); do 
+                cat  $sample/dge/${i}*spateo.txt | fgrep -v MIDCounts  | fgrep -v Multigene | cat <( echo -e "x\ty\tgeneID\tMIDCounts\tEXONIC\tINTRONIC") - > $sample/dge/${i}_dataset.txt
+            done
         fi
     else
         if [ $INTERGENIC == "1" ]; then
-            cat $sample/swaths | xargs -i -P 4 bash -c 'cat  $sample/dge/{}*spateo.txt | fgrep -v MIDCounts  | fgrep -v Intergenic | cat <( echo -e "x\ty\tgeneID\tMIDCounts\tEXONIC\tINTRONIC") - > $sample/dge/{}_dataset.txt'
+            for i in $(cat $sample/swaths); do
+                cat  $sample/dge/${i}*spateo.txt | fgrep -v MIDCounts  | fgrep -v Intergenic | cat <( echo -e "x\ty\tgeneID\tMIDCounts\tEXONIC\tINTRONIC") - > $sample/dge/${i}_dataset.txt
+            done
         else
-            cat $sample/swaths | xargs -i -P 4 bash -c 'cat  $sample/dge/{}*spateo.txt | fgrep -v MIDCounts  | cat <( echo -e "x\ty\tgeneID\tMIDCounts\tEXONIC\tINTRONIC") - > $sample/dge/{}_dataset.txt'
+            for i in $(cat $sample/swaths); do
+                cat  $sample/dge/${i}*spateo.txt | fgrep -v MIDCounts  | cat <( echo -e "x\ty\tgeneID\tMIDCounts\tEXONIC\tINTRONIC") - > $sample/dge/${i}_dataset.txt
+            done
         fi
     fi
 fi
@@ -230,18 +238,22 @@ echo -e "segmentation parameters:\n-kernel size for convolution: $KD\nBin size f
 
 if [ $protocol == "Illumina" ]; then
     python $SCRIPT_DIR/segment_and_analyse.py $sample $BINSIZE $KD $species 2> $sample/logs/segment_$KD.err > $sample/logs/segment_$KD.log
+    cat $sample/seg_k_${KD}_binsize_$BINSIZE/log
+    TIME=`date | cut -f 4 -d ' '`
+    echo -e "$TIME\tSegmentation: done. Segmented .h5ad files and output of a simple automated analysis are in folder $sample/seg_k_${KD}_binsize_$BINSIZE/"
 fi
 
 if [ $protocol == "Stereo-seq" ]; then
-    ls $sample/dge/*dataset.txt | xargs -i -P 1 bash -c "python $SCRIPT_DIR/segment_Stereo_seq.py $sample $BINSIZE NO $KD $species {} 2> $sample/logs/swath_{}_segment_$KD.err > $sample/logs/swath_{}_segment_$KD.log  "
+    python $SCRIPT_DIR/segment_Stereo_seq.py $sample $BINSIZE 0.5 $KD $species {} 2> $sample/logs/segment_$KD.err > $sample/logs/segment_$KD.log
+    cat $sample/seg_thresh_0.5_k_${KD}_binsize_$BINSIZE/log
+    TIME=`date | cut -f 4 -d ' '`
+    echo -e "$TIME\tSegmentation: done. Segmented .h5ad files and output of a simple automated analysis are in folder $sample/seg_thresh_0.5_k_${KD}_binsize_$BINSIZE/"
+
 fi
-cat $sample/seg_k_${KD}_binsize_$BINSIZE/log
+
 #else 
     #cut -f 1 -d ',' $sample/tiles_info | xargs -i -P 1 bash -c "python $SCRIPT_DIR/segment_2.py $sample {} $FaST_DIR $species $apex $KD $SpateoThresh 78 2> $sample/logs/{}_segment_$KD.log"
     #python $SCRIPT_DIR/join_slice.py  $sample $species $KD > $sample/images/K_$KD/log
-TIME=`date | cut -f 4 -d ' '`
-
-echo -e "$TIME\tSegmentation: done. Segmented .h5ad files and output of a simple automated analysis are in folder $sample/seg_k_${KD}_binsize_$BINSIZE/"
 
 
 

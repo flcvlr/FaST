@@ -30,7 +30,7 @@ close $in;
 open(my $out_idx, ">", "$ARGV[1]/$tile.idx");
 open(my $out_gz, "|-", "pigz > $ARGV[1]/$tile.txt.gz");
 while ((my $b,my $c)= each(%tile_map)){
-	if ($counter < 50000) {
+	if ($counter < 650000) {
 		print $out_idx "$b\n";
 		}
 	$counter ++;

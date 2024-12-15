@@ -1,12 +1,15 @@
 use warnings;
 use strict;
 my $scale_factor;
+my $tile_w;
 if ($ARGV[2] eq "Illumina") {
 	$scale_factor=15.588;
+	$tile_w=3000;
 }
 
 if ($ARGV[2] eq "Stereo-seq") {
 	$scale_factor=1;
+	$tile_w=8000;
 }
 	
 
@@ -73,7 +76,7 @@ while (($line=<STDIN>) ne "END OF RECORDS\n" ) {
 	if ($frag eq "NEW_TILE_") {$tile = $x;next;}
 	my $hashed = oct(join("","0b", @map[unpack("C$nts", $frag)]));
 	if (!exists $Aobc[$hashed] || index($Aobc[$hashed] ,$bc) == -1) {next;}
-	my $coord = sprintf("%08d",int(($x/$scale_factor)+.5) + (int(($y/$scale_factor)+.5))*3000);
+	my $coord = sprintf("%08d",int(($x/$scale_factor)+.5) + (int(($y/$scale_factor)+.5))*$tile_w);
 	if (!exists($bc_array[$hashed])) {$bc_array[$hashed] = "$bc\tTL:Z:$tile\tCO:Z:$coord\n"; $retained ++; next;}
 	if ( ($pos = index($bc_array[$hashed] ,$bc)) == -1) {$bc_array[$hashed] .= "$bc\tTL:Z:$tile\tCO:Z:$coord\n"; $retained ++; next;}
 	$amb{$frag.$bc}++;

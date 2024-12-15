@@ -23,8 +23,9 @@ my $tile = $ARGV[1];
 my $umi_len;
 my $offset_x;
 my $offset_y;
-
+my $tile_w;
 if ($ARGV[3] eq "Illumina") {
+	$tile_w=3000;
 	$umi_len=9;
 	my $swath= substr($tile,3,1);
 	my $tile_id = substr($tile,4,2);
@@ -38,6 +39,7 @@ if ($ARGV[3] eq "Illumina") {
 }
 
 if ($ARGV[3] eq "Stereo-seq") {
+	$tile_w=8000;
 	$umi_len=10;
 	$offset_x=substr($tile,0,2)*8000;
 	$offset_y=substr($tile,2,2)*8000;
@@ -119,10 +121,10 @@ foreach my $coord (0..$#A_of_s) {
 		my $bc_count=0;
 		my $cyto_score= 0;
 		my $nuc_score=0;
-		my $x = ($coord % 3000)+$offset_x;
+		my $x = ($coord % $tile_w)+$offset_x;
 		if ($xmin > $x) {$xmin=$x;}
 		if ($xmax < $x) {$xmax=$x;}
-		my $y=int($coord/3000)+$offset_y;
+		my $y=int($coord/$tile_w)+$offset_y;
 		if ($ymin > $y) {$ymin=$y;}
 		if ($ymax < $y) {$ymax=$y;}
 		foreach my $info (split("\t",$A_of_s[$coord])) {
