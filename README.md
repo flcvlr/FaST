@@ -3,9 +3,13 @@ Fast analysis of Spatial Transcriptomics
 
 FaST is designed to allow quick analysis of large spatial transcriptomics datasets based on the 
 repurposing of the Illumina flow-cell as an RNA capture device. Published protocols supported by FaST
-include OpenST, seqscope and novascope.
+include OpenST, seqscope, novascope and Stereo-seq.
+
+Please check the full [documentation] (https://fast-fast-analysis-of-spatial-transcriptomics.readthedocs.io/en/latest/index.html)
 
 Requirements:
+
+pigz
 
 bash shell environment
 

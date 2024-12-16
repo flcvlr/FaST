@@ -30,20 +30,20 @@ Option         Description
 **-f**        No argument. Forces full re-analysis of the sample, including preprocessing alignment and DGE. If aligned
 	      reads are found in the sample folder, default behaviour is to run only segmentation analysis (if -S is set).
 **-j**	      max number of jobs to run in parallel during alignment (default=20, suggested value: num_threads -4).
-**-K**        kernel density to use in cell segmentation. 11 > odd_integer > 1 (default=7 for human, k=5 for mouse).
-**-s**	      either "human" or "mouse", instructs FaST to look for the appropriate annotation which is stored 
-              in the FaST/reference/ folder, and shoud have been generated with FaST-reference ( FaST-reference -h for help)
 **-n**	      name for the sample you want to analyse. The software will create a folder with this name and all output
 	      will be written in that folder.
 **-p**	      ST protocol. Currently FaST supposrts either the "Illumina" (Seq-scope, Nova-scope, OpenST, Nova-ST) or "Stereo-seq".
 **-r**	      ratio of barcodes found to select a tile. Default is 0.1 (i.e. only retain tiles in which at least 10%
 	      of the barcodes assigned to that tile are found in the sequencing)
+**-s**	      either "human" or "mouse", instructs FaST to look for the appropriate annotation which is stored 
+              in the FaST/reference/ folder, and shoud have been generated with FaST-reference ( FaST-reference -h for help)
 **-t**	      path to a folder containing barcodes with coordinates. This is generated from the first sequencing round
 	      of seq-scope, OpenST, Stereo-seq or Nova-ST protocols using FaST-map.
 **-B**	      Binsize to segment capture area during cell segmentation using Spateo (default: 20. Before changing this 
 	      parameter, take the time to carefully read Spateo-release documentation.)
 **-I**        If set, reads mapping to intergenic regions will be taken as evidence of a cell on that "puck" and will 
 	      therefore contribute to cell segmentation. (Experimental, setting this option is not currently reccomended)
+**-K**        kernel density to use in cell segmentation. 11 > odd_integer > 1 (default=3).
 **-M**	      If set, reads mapping to multiple genes will be taken as evidence of a cell on that "puck" and will 
 	      therefore contribute to cell segmentation. (Experimental, setting this option is not currently reccomended)
 **-P**	      If set, gene classified as "pseudogenes" will be removed from the annotation before running FaST. About 10% 

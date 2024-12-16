@@ -20,6 +20,8 @@ while getopts "hs:1:2:n:j:c:m:t:K:p:fB:IMPS" opt; do
         ;;    
     j)  jobs=$OPTARG  ## number of threads for STAR
         ;;
+    k)  KD=$OPTARG  ## kernel density for cell segmentation (best results obtained with 3). Must be an odd number.
+        ;;
     K)  KD=$OPTARG  ## kernel density for cell segmentation (best results obtained with 3). Must be an odd number.
         ;;
     m)  apex=$OPTARG ## method to choose nuclearly localized transcripts
