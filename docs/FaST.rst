@@ -13,7 +13,7 @@ Command syntax:
 
 .. code-block:: bash
 
-   $ FaST -1 <R1_fq.gz> -2 <R2.fq.gz> -s <species> -n <name of sample> -t <folder/with/tiles/map>  -c <file/with/tiles/offsets>  [-j n -T <float> -k <integer> -m <string> -f -S -R <float>]
+   $ FaST -1 <R1_fq.gz> -2 <R2.fq.gz> -s <species> -n <name of sample> -t <folder/with/tiles/map>   [-j <integer> -T <float> -K <integer> -f -S -R -P -I -M <float>]
 
 
 
@@ -30,13 +30,9 @@ Option         Description
 **-f**        No argument. Forces full re-analysis of the sample, including preprocessing alignment and DGE. If aligned
 	      reads are found in the sample folder, default behaviour is to run only segmentation analysis (if -S is set).
 **-j**	      max number of jobs to run in parallel during alignment (default=20, suggested value: num_threads -4).
-**-k**        kernel density to use in cell segmentation. 11 > odd_integer > 1 (default=7 for human, k=5 for mouse).
+**-K**        kernel density to use in cell segmentation. 11 > odd_integer > 1 (default=7 for human, k=5 for mouse).
 **-s**	      either "human" or "mouse", instructs FaST to look for the appropriate annotation which is stored 
               in the FaST/reference/ folder, and shoud have been generated with FaST-reference ( FaST-reference -h for help)
-**-m**        Method to use to pick nuclear labels for segmentation. Either "apex" or "nuc". "apex" instructs
-              FaST to run nuclear segmentation using Apex-seq set of nuclear genes. "nuc" innstead will first run
-              a differential expression to identify genes co-expressed with introns and miR host genes and then use 
-              those genes to guide nuclear segmentation. Default:"apex".
 **-n**	      name for the sample you want to analyse. The software will create a folder with this name and all output
 	      will be written in that folder.
 **-p**	      ST protocol. Currently FaST supposrts either the "Illumina" (Seq-scope, Nova-scope, OpenST, Nova-ST) or "Stereo-seq".
