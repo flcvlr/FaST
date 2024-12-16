@@ -77,7 +77,7 @@ Now you can run FaST by simply typing the following command:
 
 .. code-block:: bash
 
-   $ FaST/scripts/FaST -1 SRR27331459_1.fastq.gz,SRR27331460_1.fastq.gz -2 SRR27331459_1.fastq.gz,SRR27331460_2.fastq.gz -n mouse_head -s mouse -t tile_map -P -S 
+   $ FaST/scripts/FaST -1 SRR27331459_1.fastq.gz,SRR27331460_1.fastq.gz -2 SRR27331459_2.fastq.gz,SRR27331460_2.fastq.gz -n mouse_head -s mouse -t tile_map -P -S 
    
    
 This command will run the FaST pipeline, including:
