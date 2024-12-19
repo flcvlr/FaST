@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 
 if [ "$1" == "-h" ]; then
-    echo -e "usage: FaST-map <path/to/first/seq.fastq.gz> <target/folder>  [<protocol>] \n\n\nThe first argument should be the path to the gzipped fastq file containin the first sequencing results\n\nthe second argument is the path to a folder (FaST-map will create it if that does not exist yet) to save the barcodes per tile map.\n\nUse option -p to specify the protocol to use ('Illumina' or 'Stereo-seq') Default is 'Illumina'; when using 'Stereo-seq' protocol the first argument should be the output of running h5dump on the .h5 file provided by STOmics."
+    echo -e "usage: FaST-map <path/to/first/seq.fastq.gz> <target/folder>  [<protocol>] \n\n\nThe first argument should be the path to the gzipped fastq file containin the first sequencing results\n\nthe second argument is the path to a folder (FaST-map will create it if that does not exist yet) to save the barcodes per tile map.\n\nUse optional <protocol> argument to specify the protocol to use ('Illumina' or 'Stereo-seq') Default is 'Illumina'; when using 'Stereo-seq' protocol the first argument should be the output of running h5dump on the .h5 file provided by STOmics."
     exit
 fi
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
@@ -18,8 +18,8 @@ if [ $PROTOCOL == "Illumina" ]; then
     perl $SCRIPT_DIR/FaST-map.pl $1 $2 | xargs -i -P 20 bash -c  "perl $SCRIPT_DIR/write_tile.pl {} $2"
 fi
 if [ $3 == "Stereo-seq" ]; then
-    perl $SCRIPT_DIR/convert_STOmics_bc.pl $1 $2
-    ls $2/*.txt | cut -f 2 -d '/' | xargx -i -P 1 bash -c "perl $SCRIPT_DIR/write_tile_STO.pl {} $2" 
+#    perl $SCRIPT_DIR/convert_STOmics_bc.pl $1 $2
+    ls $2/*.txt | xargs -i -P 1 bash -c "perl $SCRIPT_DIR/write_tile_STO.pl {} $2" 
 fi
 
 

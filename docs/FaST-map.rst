@@ -15,11 +15,13 @@ Usage
 -------------------
 
  
-Command syntax:
+Command syntax for Illumina (Nova-ST, OpenST, seqscope, Novascope):
++++++++++++++++++++
+
 
 .. code-block:: bash
 
-   $ FaST-map <path/to/first/seq.fastq.gz> </target/folder>
+   $ FaST-map <path/to/first/seq.fastq.gz> </target/folder> [<protocol>]
 
 The first argument should be the path to the gzipped fastq file containin the first sequencing results. 
 If the results were (rigorously, i.e. the fastq file was split in between records before compression of each chunk)
@@ -27,13 +29,35 @@ split into several different files, those can be simply concatenated on the fly 
 
 .. code-block:: bash
 
-   $ FaST-map <(cat file1.fastq.gz file2.fastq.gz file3.fastq.gz) </target/folder>
+   $ FaST-map <(cat file1.fastq.gz file2.fastq.gz file3.fastq.gz) </target/folder> [<protocol>]
    
 
 The second argument is the path to a folder (FaST-map will create it if that does not exist yet) to save the barcodes
 per tile map. You will have to provide this path to FaST as an argument to the ``-t`` option in the analysis of the 
-2nd sequencing.
+2nd sequencing (see FaST usage details).
+The <protocol> argument is optional for Illumina protocol, as this is the default setting of FaST-map.
+In case you want to provide the third optional argument for Illumina protocol, it should be "Illumina".
 
+Command syntax for Stereo-seq (STOmics):
++++++++++++++++++++
+
+
+ In this case, the first sequencing results are provided as .h5 file. One should first dump the .h5 file using the bash command 
+ 
+.. code-block:: bash
+
+    $ h5dump first_seq.h5 > first_seq.txt
+    
+And then: 
+
+.. code-block:: bash
+
+    $ FaST-map <path/to/first_seq.txt> </target/folder> Stereo-seq
+    
+The second argument is the path to a folder (FaST-map will create it if that does not exist yet) to save the barcodes
+per tile map. You will have to provide this path to FaST as an argument to the ``-t`` option in the analysis of the 
+2nd sequencing (see FaST usage details).
+The <protocol> argument is required for Stereo-seq protocol and should be "Stereo-seq"
 
 Notes on fastq.gz input files
 -------------------

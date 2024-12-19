@@ -2,10 +2,10 @@
 
 use warnings;
 use strict;
-
+use File::Basename;
 
 my $L;
-my $tile =$ARGV[0];
+my $tile =basename($ARGV[0],".txt");
 my $bc;
 my $x;
 my $y;
@@ -19,14 +19,13 @@ while (my $linein =<$in>) {
 	chomp $linein;
 	($x,$y,$bc)=(split("\t",$linein));
 	$bc = reverse($bc); 
-	#$x = $x % 8000;
-	#$y = $y % 8000;
+	$x = $x % 8000;
+	$y = $y % 8000;
 	$tile_map{$bc} = "$x\t$y\n";
 }	
 
 
 close $in;
-#unlink "$ARGV[1]/$ARGV[0].txt";
 open(my $out_idx, ">", "$ARGV[1]/$tile.idx");
 open(my $out_gz, "|-", "pigz > $ARGV[1]/$tile.txt.gz");
 while ((my $b,my $c)= each(%tile_map)){

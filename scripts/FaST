@@ -172,7 +172,6 @@ else
     echo -e "$COUNTS reads with valid alignment and spatial mapping\n$UMI UMIs with spatial mapping\n$SAT library saturation\n" >> $sample/logs/run.log
     echo -e "$TIME\tFound $COUNTS reads with valid alignment and spatial mapping; $UMI UMIs with spatial mapping; library saturation is $SAT\n"
 fi
-export $sample
 if [ $protocol == "Illumina" ]; then
     if [ $MULTI == "1" ]; then
         if [ $INTERGENIC == "1" ]; then 
@@ -187,7 +186,6 @@ if [ $protocol == "Illumina" ]; then
             cat  $sample/dge/*spateo.txt | fgrep -v MIDCounts  | cat <( echo -e "x\ty\tgeneID\tMIDCounts\tEXONIC\tINTRONIC") - > $sample/dge/whole_dataset.txt 
         fi
     fi
-    awk -v FS='\t' -v OFS='\t' '{if ($1 == "x") { print $0} else { print $1+20,$2-20,$3,$4,$5,$6}}' $sample/dge/whole_dataset.txt > $sample/dge/whole_dataset_shift.txt
 else
     if [ $MULTI == "1" ]; then
         if [ $INTERGENIC == "1" ]; then 
