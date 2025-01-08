@@ -87,10 +87,10 @@ for sw in swaths:
 
     unique, counts = numpy.unique(adata.layers['X_labels'], return_counts=True)
     cells = dict(zip(unique, counts))
-    for x in range(0,adata.n_obs):
-        for y in range(0,adata.n_vars):
-            if (cells[adata.layers['X_labels'][x,y]] < 50) or (cells[adata.layers['X_labels'][x,y]] > 5000):
-                adata.layers['X_labels'][x,y]=0
+    keep = {key:val for key, val in cells.items() if (val > 50) and (val < 5000) }
+    keep_int=[int(k) for k in keep.keys()]
+    mask = numpy.isin(adata.layers['X_labels'],keep_int)
+    adata.layers['X_labels'][~mask]=0
                 
     st.cs.expand_labels(adata, 'X',distance=5,max_area=5000)
 
