@@ -98,6 +98,12 @@ with open(dataset+'/images/final_masks.txt', "w") as txt_file:
 
 cell_adata = st.io.read_bgi(dataset+'/dge/whole_dataset.txt', segmentation_adata=adata, labels_layer='X_labels_expanded')
 
+cell_adata.uns['spatial']=''
+
+outfile = dataset+'/'+output+'/RNA_segmented_unfiltered.h5ad'
+cell_adata.write_h5ad(outfile)
+
+
 if sys.argv[4] == 'mouse':
     cell_adata.var["mt"] = cell_adata.var_names.str.startswith("mt-")
    
@@ -108,15 +114,18 @@ if sys.argv[4] == 'human':
     
 sc.pp.calculate_qc_metrics(cell_adata, qc_vars=["mt"], inplace=True)
 
-cell_adata.uns['spatial']=''
+
 
 sc.set_figure_params(facecolor="white", figsize=(8, 8))
 
 with open(dataset+'/'+output+'/log', "w") as txt_file:
-    txt_file.write('#cells before filtering: '+str(cell_adata.n_obs)+'\ngenes before filtering:'+ str(cell_adata.n_vars)+'\n')
+    txt_file.write('#cells before filtering: '+str(cell_adata.n_obs)+'\ngenes before filtering:'+ str(cell_adata.n_vars)+'\nmean counts_per_cell before filtering: '+str(cell_adata.obs["total_counts"].mean())+'\ntotal UMIs in cells before filtering: '+str(cell_adata.obs["total_counts"].sum())+'\nmean genes per cell before filtering: '+str(cell_adata.obs["n_genes_by_counts"].mean())+'\n')
 
 print(f"#cells before filtering: {cell_adata.n_obs}")
 print(f"#genes before filtering: {cell_adata.n_vars}")
+print(f'mean counts_per_cell before filtering: {cell_adata.obs["total_counts"].mean()}')
+print(f'total UMIs in cells before filtering: {cell_adata.obs["total_counts"].sum()}')
+print(f'mean genes per cell before filtering: {cell_adata.obs["n_genes_by_counts"].mean()}')
 
 fig, axs = plt.subplots(1, 2, figsize=(15, 4))
 sns.histplot(cell_adata.obs["total_counts"][cell_adata.obs["total_counts"] < 5000],kde=False, bins=40,ax=axs[0],binrange =(0,2000))
@@ -135,12 +144,13 @@ sc.pp.filter_genes(cell_adata, min_cells=10)
 
 
 with open(dataset+'/'+output+'/log', "a") as txt_file:
-    txt_file.write('#cells after filtering: '+str(cell_adata.n_obs)+'\n#genes after filtering: '+str(cell_adata.n_vars)+'\nmean counts_per_cell: '+str(cell_adata.obs["total_counts"].mean())+'\ntotal UMIs in cells: '+str(cell_adata.obs["total_counts"].sum())+'\n')
+    txt_file.write('#cells after filtering: '+str(cell_adata.n_obs)+'\n#genes after filtering: '+str(cell_adata.n_vars)+'\nmean counts_per_cell after filtering: '+str(cell_adata.obs["total_counts"].mean())+'\ntotal UMIs in cells after filtering: '+str(cell_adata.obs["total_counts"].sum())+'\nmean genes per cell after filtering: '+str(cell_adata.obs["n_genes_by_counts"].mean())+'\n')
 
 print(f"#cells after filtering: {cell_adata.n_obs}")
 print(f"#genes after filtering: {cell_adata.n_vars}")
-print(f'mean counts_per_cell: {cell_adata.obs["total_counts"].mean()}')
-print(f'total UMIs in cells: {cell_adata.obs["total_counts"].sum()}')
+print(f'mean counts_per_cell after filtering: {cell_adata.obs["total_counts"].mean()}')
+print(f'total UMIs in cells after filtering: {cell_adata.obs["total_counts"].sum()}')
+print(f'mean genes per cell after filtering: {cell_adata.obs["n_genes_by_counts"].mean()}')
 
 fig, axs = plt.subplots(1, 2, figsize=(15, 4))
 sns.histplot(cell_adata.obs["total_counts"][cell_adata.obs["total_counts"] < 5000],kde=False, bins=40,ax=axs[0],binrange =(0,2000))

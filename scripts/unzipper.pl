@@ -32,6 +32,7 @@ while (my $line=<$in>) {
 my $collected=$.;
 my $t = (split(" ",localtime))[3];
 print STDERR "$t\tcollected $collected barcodes from file $ARGV[0]\n";
+system("echo 'collected $collected barcodes from file $ARGV[0]' >> $ARGV[1]/logs/run.log");
 
 foreach my $i (0..15) {
 	if ($output[$i] ne "") {print {$fhs[$i]} $output[$i];}
