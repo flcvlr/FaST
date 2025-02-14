@@ -10,14 +10,14 @@ if [ ! -d $2 ]; then
 fi
 
 if [ -z $3 ]; then
-    PROTOCOL="Illumina";
-else
-    PROTOCOL=$3
+    $3="Illumina";
 fi
-if [ $PROTOCOL == "Illumina" ]; then    
+PROTOCOL=$3
+
+if [ "$PROTOCOL" == "Illumina" ]; then    
     perl $SCRIPT_DIR/FaST-map.pl $1 $2 | xargs -i -P 20 bash -c  "perl $SCRIPT_DIR/write_tile.pl {} $2"
 fi
-if [ $3 == "Stereo-seq" ]; then
+if [ "$PROTOCOL" == "Stereo-seq" ]; then
     perl $SCRIPT_DIR/convert_STOmics_bc.pl $1 $2
     ls $2/*.txt | xargs -i -P 1 bash -c "perl $SCRIPT_DIR/write_tile_STO.pl {} $2" 
 fi

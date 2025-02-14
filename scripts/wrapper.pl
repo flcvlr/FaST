@@ -159,7 +159,9 @@ $t =(split(" ",localtime))[3];
 if ($ARGV[9] eq "Illumina") {
 	$percent= sprintf("%.2f" , 100*($ambiguous/$retained));
 	print "$t\tRetained $retained different barcodes. Found $ambiguous ambiguous barcodes ($percent%).\n$t\tStarting alignment with STAR...\n";
-	system("echo", "-e", "Retained $retained different barcodes\nFound $ambiguous ambiguous barcodes ($percent%)", ">>", "$ARGV[2]/logs/run.log");
+	open (my $runlog, ">>","$ARGV[2]/logs/run.log") || die "cannot write to $ARGV[2]/logs/run.log\n";
+	print $runlog "Retained $retained different barcodes\nFound $ambiguous ambiguous barcodes ($percent%)\n";
+	close $runlog;
 }
 
 if ($ARGV[9] eq "Stereo-seq") {
