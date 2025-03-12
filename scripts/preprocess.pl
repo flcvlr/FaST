@@ -59,7 +59,8 @@ if ($ARGV[3] eq "Illumina") {
 		$score=<$R2>;
 		$umi=substr($seq,0,9,"");
 		if (index($umi.$bc, "N") != -1) { next;}
-		substr($score,0,9)="";
+		substr($seq,0,$ARGV[4])="";
+		substr($score,0,9+$ARGV[4])="";
 		chomp $seq;
 		chomp $score;
 		$name=substr($name,1,(index($name, " ")-1));

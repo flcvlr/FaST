@@ -179,7 +179,7 @@ my @zips_2= split(",",$ARGV[1]);
 my @preprocesser_pid;
 my @preprocesser_fhs;
 foreach my $k (0..$#zips_1) {
- 	$preprocesser_pid[$k] = open($preprocesser_fhs[$k], "-|", "perl $ARGV[3]/preprocess.pl $zips_1[$k] $zips_2[$k] $ARGV[2] $ARGV[9]") || die "cannot open preprocesser\n$!";
+ 	$preprocesser_pid[$k] = open($preprocesser_fhs[$k], "-|", "perl $ARGV[3]/preprocess.pl $zips_1[$k] $zips_2[$k] $ARGV[2] $ARGV[9] $ARGV[10]") || die "cannot open preprocesser\n$!";
 }
 foreach my $id (0..$#zips_1) {
 	close $preprocesser_fhs[$id];

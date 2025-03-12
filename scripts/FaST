@@ -7,7 +7,7 @@ show_help() {
 	cat $SCRIPT_DIR/help
 	}
 	
-while getopts "hs:1:2:n:j:c:m:t:K:p:fB:IMPS" opt; do
+while getopts "hs:1:2:n:j:c:m:t:K:p:fB:IMPST" opt; do
     case "$opt" in
     h)  show_help
         exit 0
@@ -15,6 +15,8 @@ while getopts "hs:1:2:n:j:c:m:t:K:p:fB:IMPS" opt; do
     1)  R1file=$OPTARG ## R1.fastq.gz file
         ;;   
     2)  R2file=$OPTARG  ## R2.fastq.gz file
+        ;;
+    c)  cut_TSO=$optarg ## remove a n nt long TSO downstream of the UMI in read2
         ;;
     f)  force=1 ## whether to force repeating alignment and dge steps. if not set, provided that the aligned data are already there, FaST will only repeat the segmentation step
         ;;    
@@ -36,6 +38,7 @@ while getopts "hs:1:2:n:j:c:m:t:K:p:fB:IMPS" opt; do
         ;;
     t)  tiles=$OPTARG ## directory containing barcode map (one file per tile + one .idx file per tile)
         ;;
+    
     B)  BINSIZE=$OPTARG ## binsize to use in segmentation to segment area based on density
         ;;
     I)  INTERGENIC=2 ## (only applies for segmentation) use the signal from reads mapped to integenic regions (DNA???)
@@ -52,6 +55,10 @@ done
 
 if [ -z "$protocol" ]; then
     protocol="Illumina"
+fi
+
+if [ -z "$cut_TSO" ]; then
+    cut_TSO="0"
 fi
 
 if [ -z "$INTERGENIC" ]; then
@@ -156,7 +163,7 @@ else
         exit
     fi    
     echo -e "\t\tR1 file:\t\t$R1file\n\t\tR2 file:\t\t$R2file\n\t\tTiles folder:\t\t$tiles\n\t\tAllocated threads:\t$jobs"
-    perl $SCRIPT_DIR/wrapper.pl $R1file $R2file $sample $SCRIPT_DIR $tiles $tile_ratio $jobs $FaST_DIR $species $protocol
+    perl $SCRIPT_DIR/wrapper.pl $R1file $R2file $sample $SCRIPT_DIR $tiles $tile_ratio $jobs $FaST_DIR $species $protocol $cut_TSO
     if [ -d $sample/star_tmp ]; then
         rm -r $sample/star_tmp
     fi
