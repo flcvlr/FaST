@@ -13,11 +13,11 @@ after dumping the SRA files (see `here <https://github.com/ncbi/sra-tools/wiki/H
 
 ::
 
-	fc_1.fastq.gz.1	This is the file containing the full sequencing of the Illumina flowcell
-	SRR27331459_1.fastq.gz	This is the file containing read 1 (barcode sequences) of replicate 1
-	SRR27331459_2.fastq.gz	This is the file containing read 2 (mRNA sequences) of replicate 1
-	SRR27331460_1.fastq.gz	This is the file containing read 1 (barcode sequences) of replicate 2
-	SRR27331460_2.fastq.gz	This is the file containing read 2 (mRNA sequences) of replicate 2
+	fc_1.fastq.gz.1 -> This is the file containing the full sequencing of the Illumina flowcell
+	SRR27331459_1.fastq.gz -> This is the file containing read 1 (barcode sequences) of replicate 1
+	SRR27331459_2.fastq.gz -> This is the file containing read 2 (mRNA sequences) of replicate 1
+	SRR27331460_1.fastq.gz -> This is the file containing read 1 (barcode sequences) of replicate 2
+	SRR27331460_2.fastq.gz -> This is the file containing read 2 (mRNA sequences) of replicate 2
 
 You should also download FaST from the github repository (you have several options, use git or download the zipped folder) 
 and that the content of the repository have been placed in a directory in the current directory, called FaST.
