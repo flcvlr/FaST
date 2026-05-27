@@ -25,11 +25,12 @@ after dumping the SRA files (see `here <https://github.com/ncbi/sra-tools/wiki/H
 
 You should also download FaST from the github repository (you have several options, use git or download the zipped folder) 
 and that the content of the repository have been placed in a directory in the current directory, called FaST.
+
 Inside the FaST/ folder you should have the following folders:
 
-scripts/
-docs/
-data/
+* scripts/
+* docs/
+* data/
 
 
 Step 1: FaST-map
@@ -37,8 +38,8 @@ Step 1: FaST-map
 
 You need:
 
-* barcode files in either fastq.gz ("Illumina" protocols: OpenST, Seqscope, Novascope, Nova-ST) or .h5 ("Stereo-seq" protocol, BGI)
-* a Hard Drive with sufficient free space, about 200 Gb for "Illumina" protocols, 50 to 300 Gb for BGI (depending on the capture area used)
+* Barcode files in either fastq.gz ("Illumina" protocols: OpenST, Seqscope, Novascope, Nova-ST) or .h5 ("Stereo-seq" protocol, BGI)
+* A Hard Drive with sufficient free space, about 200 Gb for "Illumina" protocols, 50 to 300 Gb for BGI (depending on the capture area used)
 
 .. code-block:: bash
 
@@ -55,8 +56,8 @@ Step 2: FaST-reference
 
 You need:
 
-* a Hard Drive with sufficient free space, about 30 Gb for the mouse genome.
-* a working internet connection to download data from the Gencode repository.
+* A Hard Drive with sufficient free space, about 30 Gb for the mouse genome.
+* A working internet connection to download data from the Gencode repository.
 
 To generate the mouse reference using the latest release available on Gencode you should simply run:
 
@@ -90,7 +91,7 @@ This command will run the FaST pipeline, including:
 
 * Collection of the ~ 1 billion barcodes (ETA: ~ 2 minutes).
 * Collapsing identical barcodes and removing barcodes that are duplicated in the selected tiles (ETA: ~ 1 minute).
-* Cdentification of the tiles of the Illumina flowcell used for the libraries (ETA: ~ 1 minute).
+* Identification of the tiles of the Illumina flowcell used for the libraries (ETA: ~ 1 minute).
 * Mapping of the reads with STAR (ETA: ~ 30 minutes).
 * Building Digital expression matrices (ETA: ~ 5 minutes).
 * Plotting read density (ETA: ~ 1 minute).
