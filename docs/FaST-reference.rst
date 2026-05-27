@@ -11,9 +11,9 @@ Currently the only supported species are human and mouse, but support for custom
 added soon.
 
 
-======================
+
 Usage
-======================
+-------------------
 
 Command syntax:
 
@@ -43,9 +43,8 @@ Option         Description
 
 
 	
-======================
 Notes
-======================
+-------------------
 	
 * If you do not have a local fasta and gtf file, internet connection will be required to download Gencode data.
 * If specifying a local fasta and/or gtf file please make sure that they correspond to the same genome assembly.
