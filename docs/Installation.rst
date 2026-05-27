@@ -13,11 +13,11 @@ Software requirements
 FaST has been developed to run in a bash shell on Linux OS.
 FaST currently requires:
 
-* bedtools v2.30.0 or later
-* samtools v1.19.2 (but any version will likely work as the only samtool invoked by FaST is "samtools view")
-* STAR v2.7.11a or later 
-* spateo-release v1.0.2 (for RNA segmentation only)
-* scanpy v1.10.1 or later 
+* bedtools v2.30.0 or later.
+* samtools v1.19.2 (but any version will likely work as the only samtool invoked by FaST is "samtools view").
+* STAR v2.7.11a or later.
+* spateo-release v1.0.2 (for RNA segmentation only).
+* scanpy v1.10.1 or later.
 
 It is advisable to take advantage of the `FaST_env.yml <https://github.com/flcvlr/FaST/blob/main/data/FaST_env.yml>`_ 
 file in the data folder to create a dedicated environment.
@@ -28,13 +28,13 @@ Installing FaST
 
 Fast comes as a set of bash, Perl and Python scripts. To install it you should simply clone the github repository
 to a suitable location of your filesystem. Optionally, you can add the /path/to/FaST/scripts/ directory 
-to your PATH evironmental variable. This will allow you to run FaST by just typing FaST
+to your PATH evironmental variable. This will allow you to run FaST by just typing:
 
 .. code-block:: bash
   
     $ FaST -h
 
-instead of 
+instead of:
 
 .. code-block:: bash
   

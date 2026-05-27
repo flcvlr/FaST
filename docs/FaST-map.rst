@@ -23,7 +23,7 @@ Command syntax for Illumina (Nova-ST, OpenST, seqscope, Novascope):
 
    $ FaST-map <path/to/first/seq.fastq.gz> </target/folder> [<protocol>]
 
-The first argument should be the path to the gzipped fastq file containin the first sequencing results. 
+The first argument should be the path to the gzipped fastq file containing the first sequencing results. 
 If the results were (rigorously, i.e. the fastq file was split in between records before compression of each chunk)
 split into several different files, those can be simply concatenated on the fly by:
 
@@ -48,7 +48,7 @@ Command syntax for Stereo-seq (STOmics):
 
     $ h5dump first_seq.h5 > first_seq.txt
     
-And then: 
+and then: 
 
 .. code-block:: bash
 
@@ -57,7 +57,7 @@ And then:
 The second argument is the path to a folder (FaST-map will create it if that does not exist yet) to save the barcodes
 per tile map. You will have to provide this path to FaST as an argument to the ``-t`` option in the analysis of the 
 2nd sequencing (see FaST usage details).
-The <protocol> argument is required for Stereo-seq protocol and should be "Stereo-seq"
+The <protocol> argument is required for Stereo-seq protocol and should be "Stereo-seq".
 
 Notes on fastq.gz input files
 -------------------

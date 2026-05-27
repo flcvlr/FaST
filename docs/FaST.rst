@@ -34,18 +34,18 @@ Option         Description
 	      will be written in that folder.
 **-p**	      ST protocol. Currently FaST supposrts either the "Illumina" (Seq-scope, Nova-scope, OpenST, Nova-ST) or "Stereo-seq".
 **-r**	      ratio of barcodes found to select a tile. Default is 0.1 (i.e. only retain tiles in which at least 10%
-	      of the barcodes assigned to that tile are found in the sequencing)
+	      of the barcodes assigned to that tile are found in the sequencing).
 **-s**	      either "human" or "mouse", instructs FaST to look for the appropriate annotation which is stored 
-              in the FaST/reference/ folder, and shoud have been generated with FaST-reference ( FaST-reference -h for help)
+              in the FaST/reference/ folder, and shoud have been generated with FaST-reference ( FaST-reference -h for help).
 **-t**	      path to a folder containing barcodes with coordinates. This is generated from the first sequencing round
 	      of seq-scope, OpenST, Stereo-seq or Nova-ST protocols using FaST-map.
 **-B**	      Binsize to segment capture area during cell segmentation using Spateo (default: 20. Before changing this 
 	      parameter, take the time to carefully read Spateo-release documentation.)
 **-I**        If set, reads mapping to intergenic regions will be taken as evidence of a cell on that "puck" and will 
-	      therefore contribute to cell segmentation. (Experimental, setting this option is not currently reccomended)
+	      therefore contribute to cell segmentation (experimental, setting this option is not currently reccomended).
 **-K**        kernel density to use in cell segmentation. 11 > odd_integer > 1 (default=3).
 **-M**	      If set, reads mapping to multiple genes will be taken as evidence of a cell on that "puck" and will 
-	      therefore contribute to cell segmentation. (Experimental, setting this option is not currently reccomended)
+	      therefore contribute to cell segmentation (experimental, setting this option is not currently reccomended).
 **-P**	      If set, gene classified as "pseudogenes" will be removed from the annotation before running FaST. About 10% 
 	      of the reads are discarded as "mapping to multiple genes" just becase a (possibly very lowly or totally not
 	      expressed) matching pseudogene exists in the genome. By setting this option, one can recover a significant
@@ -105,10 +105,7 @@ All dependencies may be installed with conda, please refer to the `FaST_env.yml 
 
 Hardware and time considerations:
 FaST will take advantage of available threads, with the limit enforced by option -j in place for bowtie2 and STAR alignment. 
-FaST will fit in 32Gb RAM. A typical sample (15 square mm slice of tissue, ~1 Billion reads) should take less than 2 hours 
-with 24 threads for complete analysis. Moderately larger tissues slices or deeper sequencing should result in a linear increase of time
- requirements. If your data is split on several pairs of R1.fastq.gz/R2.fastq.gz files you may provide all of them at once, 
- check details of -1 and -2 options in the options descriptions.
+FaST will fit in 32Gb RAM. A typical sample (15 square mm slice of tissue, ~1 Billion reads) should take less than 2 hours with 24 threads for complete analysis. Moderately larger tissues slices or deeper sequencing should result in a linear increase of time requirements. If your data is split on several pairs of R1.fastq.gz/R2.fastq.gz files you may provide all of them at once, check details of -1 and -2 options in the options descriptions.
 
 
 
