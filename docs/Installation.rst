@@ -1,14 +1,16 @@
 =======================================
-System requirements
+Installing FaST
 =======================================
+System requirements
+-------------------
 
 FaST requires at least 32 Gb of RAM and a multicore processor with at least 8 cores/16 threads.
 More threads may marginally speed up the analysis, especially if using a SSD drive.
 All the currently available public datasets compatible with FaST can be analysed with 32 Gb of RAM.
 
-=======================================
+
 Software requirements
-=======================================
+-------------------
 
 FaST has been developed to run in a bash shell on Linux OS.
 FaST currently requires:
@@ -22,9 +24,9 @@ FaST currently requires:
 It is advisable to take advantage of the `FaST_env.yml <https://github.com/flcvlr/FaST/blob/main/data/FaST_env.yml>`_ 
 file in the data folder to create a dedicated environment.
 
-=======================================
-Installing FaST
-=======================================
+
+Installation
+-------------------
 
 Fast comes as a set of bash, Perl and Python scripts. To install it you should simply clone the github repository
 to a suitable location of your filesystem, using the command:
