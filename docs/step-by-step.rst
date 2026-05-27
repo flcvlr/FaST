@@ -9,7 +9,7 @@ In this tutorial, I am assuming that you have downloaded and dumped the followin
 * `SRR27331460 <https://trace.ncbi.nlm.nih.gov/Traces/sra?run=SRR27331460>`_
 * `fc_1.fastq.gz.1 <https://sra-pub-src-2.s3.amazonaws.com/SRR27331427/fc_1.fastq.gz.1>`_
 
-after dumping the SRA files (see `here <https://github.com/ncbi/sra-tools/wiki/HowTo:-fasterq-dump>`_ for details) you are supposed to have:
+After dumping the SRA files (see `here <https://github.com/ncbi/sra-tools/wiki/HowTo:-fasterq-dump>`_ for details) you are supposed to have:
 
 .. code-block:: text
 
@@ -38,8 +38,8 @@ Step 1: FaST-map
 
 You need:
 
-* Barcode files in either fastq.gz ("Illumina" protocols: OpenST, Seqscope, Novascope, Nova-ST) or .h5 ("Stereo-seq" protocol, BGI)
-* A Hard Drive with sufficient free space, about 200 Gb for "Illumina" protocols, 50 to 300 Gb for BGI (depending on the capture area used)
+* Barcode files in either fastq.gz ("Illumina" protocols: OpenST, Seqscope, Novascope, Nova-ST) or .h5 ("Stereo-seq" protocol, BGI).
+* A Hard Drive with sufficient free space, about 200 Gb for "Illumina" protocols, 50 to 300 Gb for BGI (depending on the capture area used).
 
 .. code-block:: bash
 
