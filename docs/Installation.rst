@@ -27,8 +27,13 @@ Installing FaST
 =======================================
 
 Fast comes as a set of bash, Perl and Python scripts. To install it you should simply clone the github repository
-to a suitable location of your filesystem. Optionally, you can add the /path/to/FaST/scripts/ directory 
-to your PATH evironmental variable. This will allow you to run FaST by just typing:
+to a suitable location of your filesystem, using the command:
+
+.. code-block:: bash
+
+    $ git clone https://github.com/flcvlr/FaST /path/to/FaST
+
+Optionally, you can add the /path/to/FaST/scripts/ directory to your PATH evironmental variable. This will allow you to run FaST by just typing:
 
 .. code-block:: bash
   
