@@ -70,10 +70,10 @@ Step 3: FaST
 
 You need:
 
-* a PC equipped with a multicore processor (recommended, at least 24 threads)
-* 32 Gb of RAM
+* a PC equipped with a multicore processor (recommended, at least 24 threads).
+* 32 Gb of RAM.
 * A reasonable amount of swap memory (usually on Linux, this is set equal to the RAM).
-* about 50 GB of free space on the HD
+* about 50 GB of free space on the HD.
 
 Now you can run FaST by simply typing the following command:
 
@@ -83,23 +83,26 @@ Now you can run FaST by simply typing the following command:
    
    
 This command will run the FaST pipeline, including:
-* collection of the ~ 1 billion barcodes (ETA: ~ 2 minutes)
-* collapsing identical barcodes and removing barcodes that are duplicated in the selected tiles (ETA: ~ 1 minute)
-* identification of the tiles of the Illumina flowcell used for the libraries (ETA: ~ 1 minute)
-* mapping of the reads with STAR (ETA: ~ 30 minutes)
-* Building Digital expression matrices (ETA: ~ 5 minutes)
-* plotting read density (ETA: ~ 1 minute)
-* Segmenting spatial data into cells (ETA: ~ 10 minutes)
-* Running a rudimental automated analysis with scanpy to yield a basic clustering, and a UMAP (ETA: ~ 5 minutes)
+
+* collection of the ~ 1 billion barcodes (ETA: ~ 2 minutes).
+* collapsing identical barcodes and removing barcodes that are duplicated in the selected tiles (ETA: ~ 1 minute).
+* identification of the tiles of the Illumina flowcell used for the libraries (ETA: ~ 1 minute).
+* mapping of the reads with STAR (ETA: ~ 30 minutes).
+* Building Digital expression matrices (ETA: ~ 5 minutes).
+* plotting read density (ETA: ~ 1 minute).
+* Segmenting spatial data into cells (ETA: ~ 10 minutes).
+* Running a rudimental automated analysis with scanpy to yield a basic clustering, and a UMAP (ETA: ~ 5 minutes).
 
 The whole analysis should take no more than ~ 1 hour on a recent multicore processor equipped with 16 cores/24 threads.
 
 You will find output in the following directories:
 
-* mouse_head/seg_k_3_binsize_20/:	UMAP, Segmented cells in spatial coordinates (with clusters highlighted), a short log reporting the number of cells, histograms reporting cell area, counts and genes
-* mouse_head/Aligned.bam:      	Bam file containing the alignments of R2 reads, with barcodes and coordinates as bam tags.
-* mouse_head/logs/run.log		A short log reporting the command line options, for your future reference. This log is created when you first run FaST and align reads. If you run again FaST with different options, FaST will append info to this file, so that you will be able to know what you have done. This log is erased and overwritten if you use option -f to run again the pre-processing and alignment of the reads.
-* mouse_head/logs/		Several logs about single tiles statistics, including counts and UMIs
+.. code-block:: text
+
+ mouse_head/seg_k_3_binsize_20/ -> UMAP, Segmented cells in spatial coordinates (with clusters highlighted), a short log reporting the number of cells, histograms reporting cell area, counts and genes
+ mouse_head/Aligned.bam -> Bam file containing the alignments of R2 reads, with barcodes and coordinates as bam tags.
+ mouse_head/logs/run.log -> A short log reporting the command line options, for your future reference. This log is created when you first run FaST and align reads. If you run again FaST with different options, FaST will append info to this file, so that you will be able to know what you have done. This log is erased and overwritten if you use option -f to run again the pre-processing and alignment of the reads.
+ mouse_head/logs/ -> Several logs about single tiles statistics, including counts and UMIs.
      
      
 In case you want to re-run FaST with different parameters (usually, to repeat segmentation) just run:
