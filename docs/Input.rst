@@ -14,7 +14,7 @@ Those protocols include:
 
 Briefly, all these protocols rely on two sequencing steps:
 
-#. HDMI barcode oligos are spot (by soehow complex protocols!) on the Illumina/BGI device 
+#. HDMI barcode oligos are spot (by somehow complex protocols!) on the Illumina/BGI device 
    and sequenced (1st sequencing). The output of the first sequencing is tipycally a huge 
    (hundreds of Gb) set of fastq.gz file(s), containing all the sequences of the HDMI barcodes 
    in the Illumina flowcell or BGI device. Occasionally, these data may be provided in small chunks 

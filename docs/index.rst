@@ -2,7 +2,7 @@
      FaST: Fast analysis of Spatial Transcriptomics
 =========================================================
 
-The FaST pipeline allows a quick processing od spatial transcriptomics datasets obtained by repurposing the Illumina flowcells as an RNA capture device.
+The FaST pipeline allows a quick processing of spatial transcriptomics datasets obtained by repurposing the Illumina flowcells as an RNA capture device.
 Thus far, several flavours of such protocols have been published including Seqscope, OpenST and Novaseq.
 
 
