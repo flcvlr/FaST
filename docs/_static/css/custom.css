@@ -2,14 +2,45 @@
     max-width: 1200px;
 }
 
-.wy-nav-side {
-    width: 350px;
+
+.rst-content p,
+.rst-content li,
+.rst-content dl dd,
+.rst-content table,
+.rst-content blockquote {
+    font-size: 20px;
+    line-height: 1.6;
 }
 
-.wy-side-scroll {
-    width: 350px;
+
+.rst-content h1 {
+    font-size: 34px;
 }
 
-.wy-nav-content-wrap {
-    margin-left: 350px;
+.rst-content h2 {
+    font-size: 28px;
+}
+
+.rst-content h3 {
+    font-size: 24px;
+}
+
+.rst-content h4,
+.rst-content h5,
+.rst-content h6 {
+    font-size: 20px;
+}
+
+.wy-menu-vertical a {
+    font-size: 16px !important;
+}
+
+
+.rst-content pre,
+.rst-content pre.literal-block,
+.rst-content .literal-block,
+.rst-content div[class^="highlight"] pre,
+.rst-content .highlight pre {
+    font-size: 18px !important;
+    line-height: 1.5;
 }
