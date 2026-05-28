@@ -5,3 +5,11 @@
 .wy-nav-side {
     width: 350px;
 }
+
+.wy-side-scroll {
+    width: 350px;
+}
+
+.wy-nav-content-wrap {
+    margin-left: 350px;
+}
